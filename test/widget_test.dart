@@ -1,22 +1,18 @@
-﻿// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter_test/flutter_test.dart';
+﻿import 'package:flutter_test/flutter_test.dart';
 
 import 'package:invitacion_boda_mama/main.dart';
 
 void main() {
-  testWidgets('Wedding invitation renders hero and countdown in Spanish',
+  testWidgets('Wedding invitation renders hero, countdown, and location in Spanish',
       (WidgetTester tester) async {
     await tester.pumpWidget(const WeddingInvitationApp());
 
-    expect(find.text('Laura & Daniel'), findsWidgets);
+    expect(
+      find.text(WeddingInvitationPage.details.coupleNames),
+      findsWidgets,
+    );
     expect(find.text('Cuenta regresiva'), findsOneWidget);
-    expect(find.textContaining('20 de noviembre de 2026'), findsWidgets);
-    expect(find.text('La celebración'), findsOneWidget);
+    expect(find.text('Ubicación'), findsOneWidget);
+    expect(find.text('Confirmar asistencia'), findsOneWidget);
   });
 }

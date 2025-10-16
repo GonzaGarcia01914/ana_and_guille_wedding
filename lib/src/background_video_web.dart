@@ -77,7 +77,10 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
 
   @override
   Widget build(BuildContext context) {
-    assert(kIsWeb, 'BackgroundVideo web implementation should only run on web.');
+    assert(
+      kIsWeb,
+      'BackgroundVideo web implementation should only run on web.',
+    );
     return Stack(
       fit: StackFit.expand,
       children: [
