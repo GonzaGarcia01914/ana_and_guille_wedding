@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -170,12 +170,13 @@ class WeddingInvitationPage extends StatefulWidget {
     coupleNames: 'Ana & Guilhem',
     videoUrl: 'assets/media/hero.mp4',
     mapUrl: 'https://maps.app.goo.gl/HyyjJ1SwnHrW1MUf9',
-    rsvpEmail: 'confirmaciones@bodalauraydaniel.com',
-    rsvpPhoneNumber: '5491112345678',
+    rsvpEmail: 'anakarinagarcia@gmail.com',
+    rsvpPhoneNumber: '595986561861',
     localized: {
       InvitationLocale.es: LocaleStrings(
         heroTagline: '',
-        celebrationDate: 'Sábado 19 de septiembre de 2026 · 17:00 hs',
+        celebrationDate:
+            'El sábado 19 de septiembre a las 12:00 hs del 2026 en nuestra querida Monoblet.',
         countdownTitle: 'Cuenta regresiva',
         countdownSubtitle: 'Hasta el 19 de septiembre de 2026',
         countdownLeadLabel: 'Faltan',
@@ -185,13 +186,13 @@ class WeddingInvitationPage extends StatefulWidget {
         minutesLabel: 'Minutos',
         secondsLabel: 'Segundos',
         storyLines: [
-          'Diez años, muchas aventuras.',
-          'Una historia.',
-          'Y ahora… la más especial de todas.',
-          'Esta vez queremos que seas parte.',
+          'Diez años, muchas aventuras,',
+          'Una historia ❤️',
+          'Y ahora… la más especial de todas....',
+          'Está vez queremos que seas parte....',
         ],
         storyInvite:
-            'Te invitamos a compartir con nosotros este momento tan especial.',
+            '¡Te invitamos a compartir con nosotros este momento tan especial!',
         locationTitle: 'Ubicación',
         venueName: 'Le Chat',
         locationSummary: 'Monoblet, Francia',
@@ -214,14 +215,15 @@ class WeddingInvitationPage extends StatefulWidget {
             'Elegante relajado en tonos neutros, tierra o verdes suaves.',
         registryLabel: 'Regalo',
         registryNote:
-            'Tu presencia es nuestro mejor regalo. Si deseás acompañarnos con un detalle, habrá una urna durante la recepción.',
+            'Tu presencia es nuestro mejor regalo. Si deseas acompañarnos con un detalle, habrá una urna durante la recepción.',
         footerMessage: 'Gracias por ser parte de este capítulo tan importante.',
         linkErrorMessage:
             'No pudimos abrir el enlace. Podés copiarlo desde la invitación.',
       ),
       InvitationLocale.fr: LocaleStrings(
         heroTagline: '',
-        celebrationDate: 'Samedi 19 septembre 2026 · 17h00',
+        celebrationDate:
+            'Le samedi 19 septembre à 12h00 en notre chère Monoblet.',
         countdownTitle: 'Compte à rebours',
         countdownSubtitle: "Jusqu'au 19 septembre 2026",
         countdownLeadLabel: 'Plus que',
@@ -231,13 +233,13 @@ class WeddingInvitationPage extends StatefulWidget {
         minutesLabel: 'Minutes',
         secondsLabel: 'Secondes',
         storyLines: [
-          'Dix ans, tant d’aventures.',
-          'Une histoire.',
-          'Et maintenant… la plus spéciale de toutes.',
-          'Cette fois, nous voulons que tu en fasses partie.',
+          "Dix ans, tant d'aventures,",
+          'Une histoire ❤️',
+          'Et maintenant… la plus spéciale de toutes....',
+          "Cette fois, nous voulons que tu en fasses partie....",
         ],
         storyInvite:
-            'Nous t’invitons à partager avec nous ce moment si spécial.',
+            "Nous t'invitons à partager ce moment si spécial avec nous !",
         locationTitle: 'Localisation',
         venueName: 'Le Chat',
         locationSummary: 'Monoblet, France',
@@ -262,7 +264,7 @@ class WeddingInvitationPage extends StatefulWidget {
             'Ta présence est notre plus beau cadeau. Une petite urne sera disponible pendant la réception.',
         footerMessage: 'Merci de faire partie de ce chapitre si important.',
         linkErrorMessage:
-            'Nous n’avons pas pu ouvrir le lien. Tu peux le copier depuis l’invitation.',
+            "Nous n'avons pas pu ouvrir le lien. Tu peux le copier depuis l'invitation.",
       ),
     },
   );
@@ -273,7 +275,7 @@ class WeddingInvitationPage extends StatefulWidget {
 
 class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
   final ScrollController _scrollController = ScrollController();
-  final DateTime _targetDate = DateTime(2026, 9, 19, 17);
+  final DateTime _targetDate = DateTime(2026, 9, 19, 12);
   late final ValueNotifier<Duration> _countdownNotifier =
       ValueNotifier<Duration>(_timeRemaining());
   InvitationLocale _locale = InvitationLocale.es;
@@ -436,11 +438,6 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                         children: [
                           _WelcomeSection(details: details, strings: strings),
                           const SizedBox(height: 28),
-                          _CountdownSection(
-                            countdown: _countdownNotifier,
-                            strings: strings,
-                          ),
-                          const SizedBox(height: 28),
                           SectionCard(
                             title: strings.locationTitle,
                             icon: Icons.place_outlined,
@@ -538,14 +535,13 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                   label: strings.dressCodeLabel,
                                   value: strings.dressCode,
                                 ),
-                                const SizedBox(height: 20),
-                                _InfoRow(
-                                  icon: Icons.card_giftcard_outlined,
-                                  label: strings.registryLabel,
-                                  value: strings.registryNote,
-                                ),
                               ],
                             ),
+                          ),
+                          const SizedBox(height: 28),
+                          _CountdownSection(
+                            countdown: _countdownNotifier,
+                            strings: strings,
                           ),
                           const SizedBox(height: 28),
                           _Footer(details: details, strings: strings),
@@ -573,36 +569,77 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
   }
 }
 
-class _HeroOverlay extends StatelessWidget {
+class _HeroOverlay extends StatefulWidget {
   const _HeroOverlay({required this.onScrollPromptTap});
 
   final VoidCallback onScrollPromptTap;
 
   @override
+  State<_HeroOverlay> createState() => _HeroOverlayState();
+}
+
+class _HeroOverlayState extends State<_HeroOverlay>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1100),
+  )..repeat(reverse: true);
+
+  late final Animation<double> _offset = Tween<double>(
+    begin: -3.5,
+    end: 3.5,
+  ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOutSine));
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isWide = MediaQuery.of(context).size.width >= 720;
-    final iconSize = isWide ? 40.0 : 34.0;
+    final bool isWide = MediaQuery.of(context).size.width >= 720;
+    final double iconSize = isWide ? 30 : 26;
 
     return Column(
       children: [
         const Spacer(),
         GestureDetector(
-          onTap: onScrollPromptTap,
+          onTap: widget.onScrollPromptTap,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.18),
-              borderRadius: BorderRadius.circular(32),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.45)),
+            padding: EdgeInsets.symmetric(
+              horizontal: isWide ? 22 : 18,
+              vertical: isWide ? 12 : 10,
             ),
-            child: Icon(
-              Icons.keyboard_arrow_down_rounded,
-              size: iconSize,
-              color: Colors.white.withValues(alpha: 0.85),
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.24),
+              borderRadius: BorderRadius.circular(36),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.22),
+                  offset: const Offset(0, 8),
+                  blurRadius: 18,
+                ),
+              ],
+            ),
+            child: AnimatedBuilder(
+              animation: _offset,
+              builder: (context, child) {
+                return Transform.translate(
+                  offset: Offset(0, _offset.value),
+                  child: child,
+                );
+              },
+              child: Icon(
+                Icons.keyboard_arrow_down_rounded,
+                size: iconSize,
+                color: Colors.white.withValues(alpha: 0.9),
+              ),
             ),
           ),
         ),
-        SizedBox(height: isWide ? 28 : 18),
+        SizedBox(height: isWide ? 26 : 16),
       ],
     );
   }
@@ -815,15 +852,6 @@ class _WelcomeSection extends StatelessWidget {
               color: textColor,
             ),
           ),
-          const SizedBox(height: 14),
-          Text(
-            strings.celebrationDate,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: subtitleColor,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
           SizedBox(height: isWide ? 32 : 26),
           for (int i = 0; i < strings.storyLines.length; i++) ...[
             Text(
@@ -837,13 +865,23 @@ class _WelcomeSection extends StatelessWidget {
             ),
             if (i != strings.storyLines.length - 1) const SizedBox(height: 6),
           ],
-          const SizedBox(height: 16),
+          SizedBox(height: isWide ? 22 : 18),
           Text(
             strings.storyInvite,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyLarge?.copyWith(
               color: subtitleColor,
               fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: isWide ? 24 : 18),
+          Text(
+            strings.celebrationDate,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: subtitleColor,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.4,
             ),
           ),
         ],
