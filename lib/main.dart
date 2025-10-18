@@ -302,7 +302,7 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
   InvitationLocale _locale = InvitationLocale.es;
   Timer? _timer;
   double _scrollOffset = 0;
-  bool _isAudioMuted = false;
+  bool _isAudioMuted = true;
   double _introOpacity = 1.0;
   bool _introDismissed = false;
 
@@ -375,6 +375,9 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
     }
     setState(() {
       _introOpacity = 0;
+      if (_isAudioMuted) {
+        _isAudioMuted = false;
+      }
     });
   }
 
@@ -422,193 +425,225 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
     final whatsappUrl =
         'https://wa.me/${details.rsvpPhoneNumber}?text=${Uri.encodeComponent(strings.whatsappMessage)}';
     final calendarUrl = _buildCalendarUrl(details, strings);
+    final double mainOpacity = _introDismissed
+        ? 1.0
+        : (_introOpacity < 1 ? 1.0 : 0.0);
 
     return Scaffold(
       body: Stack(
         children: [
-          Positioned.fill(
-            child: BackgroundVideo(
-              videoUrl: details.videoUrl,
-              audioUrl: details.audioUrl,
-              audioStartPosition: details.audioStartPosition,
-              audioMuted: _isAudioMuted,
-              blurSigma: _blurSigma,
-              overlayOpacity: _overlayOpacity,
-            ),
-          ),
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.black.withValues(alpha: 0.28),
-                    Colors.black.withValues(alpha: 0.1),
-                    Colors.transparent,
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.center,
-                ),
-              ),
-            ),
-          ),
-          Positioned.fill(
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              child: Padding(
-                padding: EdgeInsets.only(bottom: isWide ? 80 : 60),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SizedBox(
-                      height: heroHeight,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: isWide ? 96 : 32,
-                          vertical: isWide ? 72 : 48,
-                        ),
-                        child: _HeroOverlay(
-                          onScrollPromptTap: _scrollToContent,
+          AnimatedOpacity(
+            opacity: mainOpacity,
+            duration: const Duration(milliseconds: 420),
+            curve: Curves.easeInOut,
+            child: IgnorePointer(
+              ignoring: !_introDismissed,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: BackgroundVideo(
+                      videoUrl: details.videoUrl,
+                      audioUrl: details.audioUrl,
+                      audioStartPosition: details.audioStartPosition,
+                      audioMuted: _isAudioMuted,
+                      blurSigma: _blurSigma,
+                      overlayOpacity: _overlayOpacity,
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.black.withValues(alpha: 0.28),
+                            Colors.black.withValues(alpha: 0.1),
+                            Colors.transparent,
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.center,
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: horizontalPadding,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          _WelcomeSection(details: details, strings: strings),
-                          const SizedBox(height: 28),
-                          SectionCard(
-                            title: strings.locationTitle,
-                            icon: Icons.place_outlined,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  strings.venueName,
-                                  style: theme.textTheme.headlineSmall,
+                  ),
+                  Positioned.fill(
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: isWide ? 80 : 60),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            SizedBox(
+                              height: heroHeight,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: isWide ? 96 : 32,
+                                  vertical: isWide ? 72 : 48,
                                 ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  strings.locationSummary,
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: theme.colorScheme.primary,
+                                child: _HeroOverlay(
+                                  onScrollPromptTap: _scrollToContent,
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: horizontalPadding,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  _WelcomeSection(
+                                    details: details,
+                                    strings: strings,
                                   ),
-                                ),
-                                const SizedBox(height: 16),
-                                SelectableText(
-                                  strings.fullAddress,
-                                  style: theme.textTheme.bodyMedium,
-                                ),
-                                const SizedBox(height: 24),
-                                Wrap(
-                                  spacing: 16,
-                                  runSpacing: 16,
-                                  children: [
-                                    ElevatedButton.icon(
-                                      onPressed: () => _openLink(
-                                        context,
-                                        details.mapUrl,
-                                        strings.linkErrorMessage,
-                                      ),
-                                      icon: const Icon(Icons.map_outlined),
-                                      label: Text(strings.locationButtonLabel),
+                                  const SizedBox(height: 28),
+                                  SectionCard(
+                                    title: strings.locationTitle,
+                                    icon: Icons.place_outlined,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          strings.venueName,
+                                          style: theme.textTheme.headlineSmall,
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          strings.locationSummary,
+                                          style: theme.textTheme.bodyMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                                color:
+                                                    theme.colorScheme.primary,
+                                              ),
+                                        ),
+                                        const SizedBox(height: 18),
+                                        Wrap(
+                                          spacing: 16,
+                                          runSpacing: 16,
+                                          children: [
+                                            ElevatedButton.icon(
+                                              onPressed: () => _openLink(
+                                                context,
+                                                details.mapUrl,
+                                                strings.linkErrorMessage,
+                                              ),
+                                              icon: const Icon(
+                                                Icons.map_outlined,
+                                              ),
+                                              label: Text(
+                                                strings.locationButtonLabel,
+                                              ),
+                                            ),
+                                            TextButton.icon(
+                                              onPressed: () => _openLink(
+                                                context,
+                                                calendarUrl,
+                                                strings.linkErrorMessage,
+                                              ),
+                                              icon: const Icon(
+                                                Icons.event_available_outlined,
+                                              ),
+                                              label: Text(
+                                                strings.calendarButtonLabel,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
-                                    TextButton.icon(
-                                      onPressed: () => _openLink(
-                                        context,
-                                        calendarUrl,
-                                        strings.linkErrorMessage,
-                                      ),
-                                      icon: const Icon(
-                                        Icons.event_available_outlined,
-                                      ),
-                                      label: Text(strings.calendarButtonLabel),
+                                  ),
+                                  const SizedBox(height: 28),
+                                  SectionCard(
+                                    title: strings.rsvpTitle,
+                                    icon: Icons.mark_email_read_outlined,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Wrap(
+                                          spacing: 16,
+                                          runSpacing: 16,
+                                          children: [
+                                            ElevatedButton.icon(
+                                              onPressed: () => _openLink(
+                                                context,
+                                                mailtoUrl,
+                                                strings.linkErrorMessage,
+                                              ),
+                                              icon: const Icon(
+                                                Icons.email_outlined,
+                                              ),
+                                              label: Text(
+                                                strings.emailButtonLabel,
+                                              ),
+                                            ),
+                                            OutlinedButton.icon(
+                                              onPressed: () => _openLink(
+                                                context,
+                                                whatsappUrl,
+                                                strings.linkErrorMessage,
+                                              ),
+                                              icon: const Icon(
+                                                Icons.chat_bubble_outline,
+                                              ),
+                                              label: Text(
+                                                strings.whatsappButtonLabel,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 24),
+                                        _InfoRow(
+                                          icon: Icons.style_outlined,
+                                          label: strings.dressCodeLabel,
+                                          value: strings.dressCode,
+                                        ),
+                                        const SizedBox(height: 16),
+                                        _InfoRow(
+                                          icon: Icons.card_giftcard_outlined,
+                                          label: strings.registryLabel,
+                                          value: strings.registryNote,
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ],
+                                  ),
+                                  const SizedBox(height: 28),
+                                  _CountdownSection(
+                                    countdown: _countdownNotifier,
+                                    strings: strings,
+                                  ),
+                                  const SizedBox(height: 28),
+                                  _Footer(details: details, strings: strings),
+                                ],
+                              ),
                             ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 24,
+                    right: isWide ? 32 : 16,
+                    child: SafeArea(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _MuteToggleButton(
+                            isMuted: _isAudioMuted,
+                            onPressed: _toggleAudioMute,
                           ),
-                          const SizedBox(height: 28),
-                          SectionCard(
-                            title: strings.rsvpTitle,
-                            icon: Icons.mark_email_read_outlined,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Wrap(
-                                  spacing: 16,
-                                  runSpacing: 16,
-                                  children: [
-                                    ElevatedButton.icon(
-                                      onPressed: () => _openLink(
-                                        context,
-                                        mailtoUrl,
-                                        strings.linkErrorMessage,
-                                      ),
-                                      icon: const Icon(Icons.email_outlined),
-                                      label: Text(strings.emailButtonLabel),
-                                    ),
-                                    OutlinedButton.icon(
-                                      onPressed: () => _openLink(
-                                        context,
-                                        whatsappUrl,
-                                        strings.linkErrorMessage,
-                                      ),
-                                      icon: const Icon(
-                                        Icons.chat_bubble_outline,
-                                      ),
-                                      label: Text(strings.whatsappButtonLabel),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 24),
-                                _InfoRow(
-                                  icon: Icons.style_outlined,
-                                  label: strings.dressCodeLabel,
-                                  value: strings.dressCode,
-                                ),
-                                const SizedBox(height: 16),
-                                _InfoRow(
-                                  icon: Icons.card_giftcard_outlined,
-                                  label: strings.registryLabel,
-                                  value: strings.registryNote,
-                                ),
-                              ],
-                            ),
+                          const SizedBox(width: 12),
+                          _LanguageToggle(
+                            selected: _locale,
+                            onChanged: _switchLocale,
                           ),
-                          const SizedBox(height: 28),
-                          _CountdownSection(
-                            countdown: _countdownNotifier,
-                            strings: strings,
-                          ),
-                          const SizedBox(height: 28),
-                          _Footer(details: details, strings: strings),
                         ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            top: 24,
-            right: isWide ? 32 : 16,
-            child: SafeArea(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _MuteToggleButton(
-                    isMuted: _isAudioMuted,
-                    onPressed: _toggleAudioMute,
                   ),
-                  const SizedBox(width: 12),
-                  _LanguageToggle(selected: _locale, onChanged: _switchLocale),
                 ],
               ),
             ),
@@ -617,7 +652,7 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
             Positioned.fill(
               child: AnimatedOpacity(
                 opacity: _introOpacity,
-                duration: const Duration(milliseconds: 600),
+                duration: const Duration(milliseconds: 420),
                 curve: Curves.easeInOut,
                 onEnd: () {
                   if (_introOpacity == 0 && !_introDismissed && mounted) {
@@ -628,7 +663,7 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                 },
                 child: IgnorePointer(
                   ignoring: _introOpacity == 0,
-                  child: _IntroEnvelopeOverlay(onOpened: _dismissIntroOverlay),
+                  child: _IntroBloomOverlay(onOpened: _dismissIntroOverlay),
                 ),
               ),
             ),
@@ -728,8 +763,8 @@ class _LanguageToggle extends StatelessWidget {
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? Colors.white.withValues(alpha: 0.9)
-              : Colors.white.withValues(alpha: 0.35),
+              ? Colors.white.withValues(alpha: 0.98)
+              : Colors.white.withValues(alpha: 0.6),
         ),
         foregroundColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
@@ -739,7 +774,7 @@ class _LanguageToggle extends StatelessWidget {
         side: WidgetStateProperty.resolveWith(
           (states) => BorderSide(
             color: Colors.white.withValues(
-              alpha: states.contains(WidgetState.selected) ? 0.7 : 0.5,
+              alpha: states.contains(WidgetState.selected) ? 0.85 : 0.6,
             ),
           ),
         ),
@@ -776,8 +811,8 @@ class _MuteToggleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color background = Colors.white.withValues(alpha: 0.35);
-    final Color hoverBackground = Colors.white.withValues(alpha: 0.55);
+    final Color background = Colors.white.withValues(alpha: 0.65);
+    final Color hoverBackground = Colors.white.withValues(alpha: 0.85);
     return Tooltip(
       message: isMuted ? 'Activar sonido' : 'Silenciar sonido',
       child: IconButton(
@@ -799,36 +834,55 @@ class _MuteToggleButton extends StatelessWidget {
   }
 }
 
-class _IntroEnvelopeOverlay extends StatefulWidget {
-  const _IntroEnvelopeOverlay({required this.onOpened});
+class _IntroBloomOverlay extends StatefulWidget {
+  const _IntroBloomOverlay({required this.onOpened});
 
   final VoidCallback onOpened;
 
   @override
-  State<_IntroEnvelopeOverlay> createState() => _IntroEnvelopeOverlayState();
+  State<_IntroBloomOverlay> createState() => _IntroBloomOverlayState();
 }
 
-class _IntroEnvelopeOverlayState extends State<_IntroEnvelopeOverlay>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 620),
-  );
-
-  late final Animation<double> _openAnimation = CurvedAnimation(
-    parent: _controller,
-    curve: Curves.easeInOutCubic,
-  );
+class _IntroBloomOverlayState extends State<_IntroBloomOverlay>
+    with TickerProviderStateMixin {
+  late final AnimationController _ambientController;
+  late final AnimationController _revealController;
+  late final Animation<double> _revealProgress;
 
   bool _hasNotified = false;
+  bool _hasTapped = false;
+  double _ambientPhase = 0;
+  double _lastAmbientValue = 0;
 
   @override
   void initState() {
     super.initState();
-    _controller.addStatusListener((status) {
+    _ambientController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 12),
+    );
+    _ambientController.addListener(() {
+      final double value = _ambientController.value;
+      if (value < _lastAmbientValue) {
+        _ambientPhase += math.pi * 2;
+      }
+      _lastAmbientValue = value;
+    });
+    _ambientController.repeat();
+
+    _revealController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    _revealProgress = CurvedAnimation(
+      parent: _revealController,
+      curve: Curves.easeOutCubic,
+    );
+
+    _revealController.addStatusListener((status) {
       if (status == AnimationStatus.completed && !_hasNotified) {
         _hasNotified = true;
-        Future.delayed(const Duration(milliseconds: 220), () {
+        Future.delayed(const Duration(milliseconds: 160), () {
           if (mounted) {
             widget.onOpened();
           }
@@ -839,246 +893,349 @@ class _IntroEnvelopeOverlayState extends State<_IntroEnvelopeOverlay>
 
   @override
   void dispose() {
-    _controller.dispose();
+    _ambientController.dispose();
+    _revealController.dispose();
     super.dispose();
   }
 
   void _handleTap() {
-    if (_controller.isAnimating || _controller.isCompleted) {
+    if (_hasTapped) {
       return;
     }
-    _controller.forward();
+    setState(() {
+      _hasTapped = true;
+    });
+    _revealController.forward();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final size = MediaQuery.of(context).size;
-    final double envelopeWidth = (size.shortestSide * 0.72)
-        .clamp(240.0, 420.0)
-        .toDouble();
-    final double envelopeHeight = envelopeWidth * 0.68;
+    final mediaQuery = MediaQuery.of(context);
+    final size = mediaQuery.size;
+    final bool isWide = size.shortestSide >= 540;
+    final bool isCompact = size.shortestSide <= 360;
+    final double cardMaxWidth = isWide
+        ? math.min(size.width * 0.58, 540)
+        : math.min(size.width * 0.9, size.width - 24);
 
-    final double titleFontSize = (envelopeWidth * 0.14).clamp(26.0, 46.0);
-    final double subtitleFontSize = (envelopeWidth * 0.065).clamp(14.0, 20.0);
+    final palette = <Color>[
+      const Color(0xFF8C6A8A),
+      theme.colorScheme.tertiary.withValues(alpha: 0.85),
+      theme.colorScheme.primary.withValues(alpha: 0.8),
+      const Color(0xFF9AB7A6),
+    ];
 
-    final TextStyle titleStyle = GoogleFonts.playfairDisplay(
-      fontSize: titleFontSize,
-      fontWeight: FontWeight.w600,
-      letterSpacing: 1.4,
-      color: const Color(0xFF2F2721),
-    );
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _handleTap,
+      child: AnimatedBuilder(
+        animation: Listenable.merge([_ambientController, _revealProgress]),
+        builder: (context, _) {
+          final double animatedProgress = _revealProgress.value;
+          final double animatedTime =
+              _ambientPhase + _ambientController.value * math.pi * 2;
+          final double idlePulse = math.sin(animatedTime * 1.25) * 0.015;
+          final double callToActionOpacity = _hasTapped
+              ? (1 - animatedProgress).clamp(0.0, 1.0)
+              : 1.0;
+          final double callToActionScale = _hasTapped
+              ? (1.0 + animatedProgress * 0.18)
+              : (1.0 + idlePulse);
 
-    final TextStyle subtitleStyle = GoogleFonts.workSans(
-      fontSize: subtitleFontSize,
-      fontWeight: FontWeight.w500,
-      letterSpacing: 0.8,
-      color: const Color(0xFF4F6F5B),
-    );
-
-    final Color accentColor = theme.colorScheme.primary.withValues(alpha: 0.42);
-
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFFF8F1E5), Color(0xFFF1E3D4)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      child: Center(
-        child: GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: _handleTap,
-          child: AnimatedBuilder(
-            animation: _openAnimation,
-            builder: (context, child) {
-              return Container(
-                width: envelopeWidth,
-                height: envelopeHeight,
-                decoration: const BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color(0x23000000),
-                      offset: Offset(0, 18),
-                      blurRadius: 38,
-                      spreadRadius: 6,
-                    ),
-                  ],
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              CustomPaint(
+                painter: _BloomPainter(
+                  progress: animatedProgress,
+                  time: animatedTime,
+                  palette: palette,
+                  glowColor: theme.colorScheme.primary,
                 ),
-                child: CustomPaint(
-                  painter: _EnvelopePainter(
-                    bodyColor: const Color(0xFFFEFAF4),
-                    flapColor: const Color(0xFFE5D0B7),
-                    borderColor: const Color(0x338C7A62),
-                    accentColor: accentColor,
-                    openProgress: _openAnimation.value,
-                    titleStyle: titleStyle,
-                    subtitleStyle: subtitleStyle,
+              ),
+              Center(
+                child: Opacity(
+                  opacity: callToActionOpacity,
+                  child: Transform.scale(
+                    scale: callToActionScale,
+                    child: _IntroBloomCallToAction(
+                      isWide: isWide,
+                      isCompact: isCompact,
+                      hasTapped: _hasTapped,
+                      maxWidth: cardMaxWidth,
+                    ),
                   ),
                 ),
-              );
-            },
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _IntroBloomCallToAction extends StatelessWidget {
+  const _IntroBloomCallToAction({
+    required this.isWide,
+    required this.isCompact,
+    required this.hasTapped,
+    required this.maxWidth,
+  });
+
+  final bool isWide;
+  final bool isCompact;
+  final bool hasTapped;
+  final double maxWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final double horizontalPadding = isWide
+        ? 44
+        : isCompact
+        ? 20
+        : 28;
+    final double verticalPadding = isWide
+        ? 32
+        : isCompact
+        ? 18
+        : 24;
+    final double titleFontSize = isWide
+        ? 48
+        : isCompact
+        ? 32
+        : 36;
+    final double subtitleFontSize = isWide
+        ? 20
+        : isCompact
+        ? 16
+        : 18;
+    final double iconSize = isWide
+        ? 28
+        : isCompact
+        ? 22
+        : 24;
+    final double titleSpacing = isWide
+        ? 22
+        : isCompact
+        ? 16
+        : 18;
+
+    final TextStyle? titleStyle = theme.textTheme.displaySmall?.copyWith(
+      color: Colors.white,
+      fontSize: titleFontSize,
+      letterSpacing: isWide ? 1.6 : 1.2,
+      height: 1.08,
+      shadows: const [Shadow(color: Colors.black45, blurRadius: 16)],
+    );
+    final TextStyle? subtitleStyle = theme.textTheme.bodyLarge?.copyWith(
+      color: Colors.white.withValues(alpha: 0.9),
+      fontSize: subtitleFontSize,
+      height: 1.35,
+    );
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        maxWidth: maxWidth,
+        minWidth: math.min(maxWidth, isCompact ? 220 : 280),
+      ),
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: horizontalPadding,
+          vertical: verticalPadding,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(isWide ? 44 : 34),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.52),
+            width: 1.4,
           ),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x33000000),
+              blurRadius: 24,
+              offset: Offset(0, 18),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Ana & Guilhem',
+              style: titleStyle,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: titleSpacing),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 360),
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeIn,
+              layoutBuilder: (currentChild, previousChildren) => Stack(
+                alignment: Alignment.center,
+                children: [
+                  ...previousChildren,
+                  if (currentChild != null) currentChild,
+                ],
+              ),
+              child: hasTapped
+                  ? Row(
+                      key: const ValueKey('opening'),
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.auto_awesome_rounded,
+                          color: Colors.white.withValues(alpha: 0.9),
+                          size: iconSize,
+                        ),
+                        const SizedBox(width: 10),
+                        Text('Preparando la magia...', style: subtitleStyle),
+                      ],
+                    )
+                  : Wrap(
+                      key: const ValueKey('cta'),
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 10,
+                      runSpacing: 6,
+                      children: [
+                        Icon(
+                          Icons.play_arrow_rounded,
+                          color: Colors.white.withValues(alpha: 0.9),
+                          size: iconSize,
+                        ),
+                        SizedBox(
+                          width: isCompact
+                              ? math.max(
+                                  0,
+                                  maxWidth - (horizontalPadding * 2 + 8),
+                                )
+                              : null,
+                          child: Text(
+                            'Toca para abrir',
+                            style: subtitleStyle,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class _EnvelopePainter extends CustomPainter {
-  _EnvelopePainter({
-    required this.bodyColor,
-    required this.flapColor,
-    required this.borderColor,
-    required this.accentColor,
-    required this.openProgress,
-    required this.titleStyle,
-    required this.subtitleStyle,
+class _BloomPainter extends CustomPainter {
+  _BloomPainter({
+    required this.progress,
+    required this.time,
+    required this.palette,
+    required this.glowColor,
   });
 
-  final Color bodyColor;
-  final Color flapColor;
-  final Color borderColor;
-  final Color accentColor;
-  final double openProgress;
-  final TextStyle titleStyle;
-  final TextStyle subtitleStyle;
+  final double progress;
+  final double time;
+  final List<Color> palette;
+  final Color glowColor;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final double flapHeight = size.height * 0.44;
-    final double bodyHeight = size.height - flapHeight;
-    final double horizontalInset = size.width * 0.045;
-    final Rect bodyRect = Rect.fromLTWH(
-      horizontalInset,
-      flapHeight,
-      size.width - (horizontalInset * 2),
-      bodyHeight - (horizontalInset * 0.12),
-    );
-    final double radius = math.min(bodyRect.height * 0.55, size.width * 0.22);
-
-    final RRect bodyRRect = RRect.fromRectAndRadius(
-      bodyRect,
-      Radius.circular(radius),
-    );
-    final Paint bodyPaint = Paint()
-      ..shader = LinearGradient(
+    final Rect bounds = Offset.zero & size;
+    final Paint background = Paint()
+      ..shader = RadialGradient(
+        center: Alignment.center,
+        radius: 1.05,
         colors: [
-          bodyColor,
-          Color.lerp(bodyColor, const Color(0xFFE7D9C9), 0.28)!,
+          glowColor.withValues(alpha: 0.35 + progress * 0.15),
+          Colors.black.withValues(alpha: 0.7),
         ],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ).createShader(bodyRect);
-    canvas.drawRRect(bodyRRect, bodyPaint);
+        stops: const [0.0, 1.0],
+      ).createShader(bounds);
+    canvas.drawRect(bounds, background);
 
-    final Paint bodyBorderPaint = Paint()
-      ..color = borderColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = size.width * 0.012;
-    canvas.drawRRect(bodyRRect, bodyBorderPaint);
+    final Offset center = bounds.center;
+    final double baseRadius = size.shortestSide * (0.18 + progress * 0.22);
 
-    final Offset sealCenter = Offset(
-      size.width / 2,
-      bodyRect.bottom - radius * 0.45,
-    );
-    final double sealRadius = size.width * 0.045;
-    final Paint sealPaint = Paint()..color = accentColor.withValues(alpha: 0.7);
-    canvas.drawCircle(sealCenter, sealRadius, sealPaint);
-    final Paint sealHighlightPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.65);
-    canvas.drawCircle(
-      sealCenter.translate(-sealRadius * 0.35, -sealRadius * 0.35),
-      sealRadius * 0.28,
-      sealHighlightPaint,
-    );
+    for (int i = 0; i < 8; i++) {
+      final double angle = time * (0.5 + i * 0.05) + (i / 8) * math.pi * 2;
+      final double distance = baseRadius * (1.8 + i * 0.24 + progress * 1.4);
+      final Offset offset = Offset(
+        math.cos(angle) * distance,
+        math.sin(angle) * distance,
+      );
+      final double petalLength =
+          size.shortestSide * (0.18 + i * 0.02) * (1 + progress * 0.6);
+      final double petalWidth = petalLength * 0.45;
 
-    final Paint foldPaint = Paint()
-      ..color = accentColor.withValues(alpha: 0.65)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = size.width * 0.01
-      ..strokeCap = StrokeCap.round;
-    final Offset leftFoldStart = Offset(
-      bodyRect.left + radius * 0.15,
-      flapHeight + bodyHeight * 0.42,
-    );
-    final Offset rightFoldStart = Offset(
-      bodyRect.right - radius * 0.15,
-      flapHeight + bodyHeight * 0.42,
-    );
-    canvas.drawLine(leftFoldStart, sealCenter, foldPaint);
-    canvas.drawLine(rightFoldStart, sealCenter, foldPaint);
+      canvas.save();
+      canvas.translate(center.dx + offset.dx, center.dy + offset.dy);
+      final double rotation =
+          angle + math.sin(time * 0.8 + i) * (1 - progress) * 0.6;
+      canvas.rotate(rotation);
 
-    final TextPainter titlePainter = TextPainter(
-      text: TextSpan(text: 'Para ti', style: titleStyle),
-      textDirection: TextDirection.ltr,
-      maxLines: 1,
-    )..layout(maxWidth: bodyRect.width * 0.8);
-    final double titleTop = flapHeight + bodyRect.height * 0.28;
-    titlePainter.paint(
-      canvas,
-      Offset(
-        bodyRect.left + (bodyRect.width - titlePainter.width) / 2,
-        titleTop,
-      ),
-    );
+      final Rect petalRect = Rect.fromCenter(
+        center: Offset.zero,
+        width: petalWidth,
+        height: petalLength,
+      );
+      final RRect petalShape = RRect.fromRectAndRadius(
+        petalRect,
+        Radius.circular(petalWidth * 0.5),
+      );
+      final Color baseColor = palette[i % palette.length];
+      final Paint petalPaint = Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: [
+            baseColor.withValues(alpha: 0.18 + progress * 0.32),
+            baseColor.withValues(alpha: 0.78),
+          ],
+        ).createShader(petalRect);
+      canvas.drawRRect(petalShape, petalPaint);
+      canvas.restore();
+    }
 
-    final TextPainter subtitlePainter = TextPainter(
-      text: TextSpan(text: 'Toca para abrir', style: subtitleStyle),
-      textDirection: TextDirection.ltr,
-      maxLines: 1,
-    )..layout(maxWidth: bodyRect.width * 0.75);
-    subtitlePainter.paint(
-      canvas,
-      Offset(
-        bodyRect.left + (bodyRect.width - subtitlePainter.width) / 2,
-        titleTop + titlePainter.height + bodyRect.height * 0.09,
-      ),
-    );
+    const int sparkleCount = 28;
+    for (int i = 0; i < sparkleCount; i++) {
+      final double angle = time * 0.9 + (i / sparkleCount) * math.pi * 2;
+      final double orbit = baseRadius * (1.4 + (i % 6) * 0.26 + progress * 1.2);
+      final Offset sparkleOffset =
+          center + Offset(math.cos(angle) * orbit, math.sin(angle) * orbit);
+      final double sparkleWave = (math.sin(time * 1.6 + i) + 1) / 2;
+      final double sparkleSize =
+          size.shortestSide *
+          0.007 *
+          (1.2 + sparkleWave * 1.4) *
+          (1 - progress * 0.25);
+      final Paint sparklePaint = Paint()
+        ..color = Colors.white.withValues(alpha: 0.12 + sparkleWave * 0.36);
+      canvas.drawCircle(sparkleOffset, sparkleSize, sparklePaint);
+    }
 
-    final double angle = openProgress * math.pi * 0.95;
-    final Offset pivot = Offset(size.width / 2, bodyRect.top);
-    canvas.save();
-    canvas.translate(pivot.dx, pivot.dy);
-    canvas.rotate(-angle);
-    canvas.translate(-pivot.dx, -pivot.dy);
-
-    final Path flapPath = Path()
-      ..moveTo(bodyRect.left, bodyRect.top)
-      ..lineTo(size.width / 2, bodyRect.top - flapHeight * 0.9)
-      ..lineTo(bodyRect.right, bodyRect.top)
-      ..close();
-
-    final Rect flapBounds = Rect.fromLTWH(
-      bodyRect.left,
-      bodyRect.top - flapHeight,
-      bodyRect.width,
-      flapHeight,
-    );
-    final Paint flapPaint = Paint()
-      ..shader = LinearGradient(
-        colors: [Color.lerp(flapColor, Colors.white, 0.2)!, flapColor],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ).createShader(flapBounds);
-    canvas.drawPath(flapPath, flapPaint);
-
-    final Paint flapBorderPaint = Paint()
-      ..color = borderColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = size.width * 0.01;
-    canvas.drawPath(flapPath, flapBorderPaint);
-    canvas.restore();
+    final double coreRadius = baseRadius * (1.1 + progress * 0.9);
+    final Rect coreBounds = Rect.fromCircle(center: center, radius: coreRadius);
+    final Paint corePaint = Paint()
+      ..shader = RadialGradient(
+        colors: [
+          Colors.white.withValues(alpha: 0.9),
+          glowColor.withValues(alpha: 0.0),
+        ],
+      ).createShader(coreBounds);
+    canvas.drawCircle(center, coreRadius, corePaint);
   }
 
   @override
-  bool shouldRepaint(covariant _EnvelopePainter oldDelegate) {
-    return oldDelegate.bodyColor != bodyColor ||
-        oldDelegate.flapColor != flapColor ||
-        oldDelegate.borderColor != borderColor ||
-        oldDelegate.accentColor != accentColor ||
-        oldDelegate.openProgress != openProgress;
+  bool shouldRepaint(covariant _BloomPainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.time != time ||
+        oldDelegate.glowColor != glowColor ||
+        !listEquals(oldDelegate.palette, palette);
   }
 }
 
