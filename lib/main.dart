@@ -1,4 +1,5 @@
 ﻿import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,28 @@ import 'package:invitacion_boda_mama/background_video.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 void main() {
-  runApp(const WeddingInvitationApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    debugPrint('FlutterError: ${details.exceptionAsString()}');
+    if (details.stack != null) {
+      debugPrint(details.stack.toString());
+    }
+  };
+
+  PlatformDispatcher.instance.onError = (Object error, StackTrace stackTrace) {
+    debugPrint('Unhandled platform error: $error');
+    debugPrint(stackTrace.toString());
+    return true;
+  };
+
+  runZonedGuarded(() => runApp(const WeddingInvitationApp()), (
+    Object error,
+    StackTrace stackTrace,
+  ) {
+    debugPrint('Uncaught zone error: $error');
+    debugPrint(stackTrace.toString());
+  });
 }
 
 class WeddingInvitationApp extends StatelessWidget {
@@ -203,8 +225,7 @@ class WeddingInvitationPage extends StatefulWidget {
         calendarDescription:
             'Celebramos nuestra boda en Le Chat, Monoblet. ¡Te esperamos para brindar juntos!',
         rsvpTitle: 'Confirmar asistencia',
-        rsvpDateLimit:
-            'Por favor confirmá tu asistencia antes del 5 de septiembre.',
+        rsvpDateLimit: '',
         emailButtonLabel: 'Enviar correo',
         whatsappButtonLabel: 'Mensaje por WhatsApp',
         emailSubject: 'Confirmación de asistencia',
@@ -214,8 +235,7 @@ class WeddingInvitationPage extends StatefulWidget {
         dressCode:
             'Elegante relajado en tonos neutros, tierra o verdes suaves.',
         registryLabel: 'Regalo',
-        registryNote:
-            'Tu presencia es nuestro mejor regalo. Si deseas acompañarnos con un detalle, habrá una urna durante la recepción.',
+        registryNote: 'Tu presencia es nuestro mejor regalo',
         footerMessage: 'Gracias por ser parte de este capítulo tan importante.',
         linkErrorMessage:
             'No pudimos abrir el enlace. Podés copiarlo desde la invitación.',
@@ -223,8 +243,8 @@ class WeddingInvitationPage extends StatefulWidget {
       InvitationLocale.fr: LocaleStrings(
         heroTagline: '',
         celebrationDate:
-            'Le samedi 19 septembre à 12h00 en notre chère Monoblet.',
-        countdownTitle: 'Compte à rebours',
+            'Le samedi 19 septembre a 12h00 en notre chere Monoblet.',
+        countdownTitle: 'Compte a rebours',
         countdownSubtitle: "Jusqu'au 19 septembre 2026",
         countdownLeadLabel: 'Plus que',
         countdownTargetLabel: '19 septembre 2026 · Monoblet',
@@ -235,11 +255,11 @@ class WeddingInvitationPage extends StatefulWidget {
         storyLines: [
           "Dix ans, tant d'aventures,",
           'Une histoire ❤️',
-          'Et maintenant… la plus spéciale de toutes....',
+          'Et maintenant... la plus speciale de toutes....',
           "Cette fois, nous voulons que tu en fasses partie....",
         ],
         storyInvite:
-            "Nous t'invitons à partager ce moment si spécial avec nous !",
+            "Nous t'invitons a partager ce moment si special avec nous !",
         locationTitle: 'Localisation',
         venueName: 'Le Chat',
         locationSummary: 'Monoblet, France',
@@ -248,20 +268,19 @@ class WeddingInvitationPage extends StatefulWidget {
         calendarButtonLabel: 'Ajouter au calendrier',
         calendarTitle: 'Mariage',
         calendarDescription:
-            "Nous célébrons notre mariage à Le Chat, Monoblet. Nous t'attendons pour trinquer ensemble !",
-        rsvpTitle: 'Confirmer ta présence',
-        rsvpDateLimit: 'Merci de confirmer ta présence avant le 5 septembre.',
+            "Nous celebrons notre mariage a Le Chat, Monoblet. Nous t'attendons pour trinquer ensemble !",
+        rsvpTitle: 'Confirmer ta presence',
+        rsvpDateLimit: '',
         emailButtonLabel: 'Envoyer un e-mail',
         whatsappButtonLabel: 'Message WhatsApp',
-        emailSubject: 'Confirmation de présence',
+        emailSubject: 'Confirmation de presence',
         whatsappMessage:
-            'Bonjour ! Je souhaite confirmer ma présence au mariage de Ana et Guilhem.',
+            'Bonjour ! Je souhaite confirmer ma presence au mariage de Ana et Guilhem.',
         dressCodeLabel: 'Tenue',
         dressCode:
-            'Élégant décontracté dans des tons neutres, terre ou verts doux.',
+            'Elegant decontracte dans des tons neutres, terre ou verts doux.',
         registryLabel: 'Cadeau',
-        registryNote:
-            'Ta présence est notre plus beau cadeau. Une petite urne sera disponible pendant la réception.',
+        registryNote: 'Ta presence est notre plus beau cadeau',
         footerMessage: 'Merci de faire partie de ce chapitre si important.',
         linkErrorMessage:
             "Nous n'avons pas pu ouvrir le lien. Tu peux le copier depuis l'invitation.",
@@ -498,11 +517,6 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  strings.rsvpDateLimit,
-                                  style: theme.textTheme.bodyMedium,
-                                ),
-                                const SizedBox(height: 20),
                                 Wrap(
                                   spacing: 16,
                                   runSpacing: 16,
@@ -529,11 +543,17 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 28),
+                                const SizedBox(height: 24),
                                 _InfoRow(
                                   icon: Icons.style_outlined,
                                   label: strings.dressCodeLabel,
                                   value: strings.dressCode,
+                                ),
+                                const SizedBox(height: 16),
+                                _InfoRow(
+                                  icon: Icons.card_giftcard_outlined,
+                                  label: strings.registryLabel,
+                                  value: strings.registryNote,
                                 ),
                               ],
                             ),
@@ -599,7 +619,7 @@ class _HeroOverlayState extends State<_HeroOverlay>
   @override
   Widget build(BuildContext context) {
     final bool isWide = MediaQuery.of(context).size.width >= 720;
-    final double iconSize = isWide ? 30 : 26;
+    final double iconSize = isWide ? 26 : 22;
 
     return Column(
       children: [
@@ -631,10 +651,12 @@ class _HeroOverlayState extends State<_HeroOverlay>
                   child: child,
                 );
               },
-              child: Icon(
-                Icons.keyboard_arrow_down_rounded,
-                size: iconSize,
-                color: Colors.white.withValues(alpha: 0.9),
+              child: Text(
+                '👇',
+                style: TextStyle(
+                  fontSize: iconSize,
+                  color: Colors.white.withValues(alpha: 0.92),
+                ),
               ),
             ),
           ),
@@ -911,11 +933,18 @@ class SectionCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Icon(icon, color: theme.colorScheme.primary),
               const SizedBox(width: 12),
-              Text(title, style: theme.textTheme.headlineMedium),
+              Expanded(
+                child: Text(
+                  title,
+                  style: theme.textTheme.headlineMedium,
+                  softWrap: true,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 18),
