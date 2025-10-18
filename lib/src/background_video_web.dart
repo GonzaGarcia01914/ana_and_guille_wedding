@@ -14,11 +14,15 @@ class BackgroundVideo extends StatefulWidget {
     required this.videoUrl,
     required this.blurSigma,
     required this.overlayOpacity,
+    this.audioUrl,
+    this.audioStartPosition = 0,
   });
 
   final String videoUrl;
   final double blurSigma;
   final double overlayOpacity;
+  final String? audioUrl;
+  final double audioStartPosition;
 
   @override
   State<BackgroundVideo> createState() => _BackgroundVideoState();
@@ -28,9 +32,17 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
   static final Set<String> _registeredViewTypes = <String>{};
   late final String _viewType;
   late final html.VideoElement _videoElement;
+  html.DivElement? _wrapperElement;
   String? _resolvedVideoUrl;
+  html.AudioElement? _audioElement;
+  String? _resolvedAudioUrl;
   StreamSubscription<html.Event>? _canPlaySubscription;
   StreamSubscription<html.Event>? _errorSubscription;
+  StreamSubscription<html.Event>? _audioCanPlaySubscription;
+  StreamSubscription<html.Event>? _audioErrorSubscription;
+  StreamSubscription<html.Event>? _audioMetadataSubscription;
+  final List<StreamSubscription<html.Event>> _userInteractionSubscriptions = [];
+  bool _audioStartApplied = false;
 
   @override
   void initState() {
@@ -62,7 +74,7 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
       _registeredViewTypes.add(_viewType);
     }
 
-    _resolvedVideoUrl = _resolveVideoUrl(widget.videoUrl);
+    _resolvedVideoUrl = _resolveMediaUrl(widget.videoUrl);
     _videoElement.src = _resolvedVideoUrl ?? widget.videoUrl;
 
     _canPlaySubscription = _videoElement.onCanPlay.listen((_) {
@@ -74,10 +86,15 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
         'Background video failed to load: ${_resolvedVideoUrl ?? widget.videoUrl}',
       );
     });
+
+    if (widget.audioUrl != null && widget.audioUrl!.isNotEmpty) {
+      _audioStartApplied = false;
+      _initializeAudioElement(widget.audioUrl!);
+    }
   }
 
   html.Element _createWrapper() {
-    final html.DivElement wrapper = html.DivElement()
+    _wrapperElement = html.DivElement()
       ..style.width = '100%'
       ..style.height = '100%'
       ..style.overflow = 'hidden'
@@ -85,8 +102,11 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
       ..style.pointerEvents = 'none'
       ..style.background =
           'linear-gradient(135deg, #2F3C35 0%, #4A665A 100%)';
-    wrapper.append(_videoElement);
-    return wrapper;
+    _wrapperElement!.append(_videoElement);
+    if (_audioElement != null) {
+      _wrapperElement!.append(_audioElement!);
+    }
+    return _wrapperElement!;
   }
 
   @override
@@ -95,10 +115,17 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
     if (oldWidget.videoUrl != widget.videoUrl) {
       _updateVideoSource();
     }
+    if (oldWidget.audioUrl != widget.audioUrl) {
+      _audioStartApplied = false;
+      _updateAudioSource();
+    } else if (oldWidget.audioStartPosition != widget.audioStartPosition) {
+      _audioStartApplied = false;
+      _seekAudioToStart();
+    }
   }
 
   void _updateVideoSource() {
-    final String? newSource = _resolveVideoUrl(widget.videoUrl);
+    final String? newSource = _resolveMediaUrl(widget.videoUrl);
     if (newSource == _resolvedVideoUrl) {
       return;
     }
@@ -117,6 +144,7 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
     _videoElement.pause();
     _videoElement.removeAttribute('src');
     _videoElement.load();
+    _disposeAudioElement();
     super.dispose();
   }
 
@@ -147,7 +175,7 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
     );
   }
 
-  String? _resolveVideoUrl(String rawUrl) {
+  String? _resolveMediaUrl(String rawUrl) {
     if (rawUrl.isEmpty) {
       return null;
     }
@@ -159,6 +187,127 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
       return Uri.base.resolveUri(uri).toString();
     } on FormatException {
       return rawUrl;
+    }
+  }
+
+  void _initializeAudioElement(String rawUrl) {
+    final audioElement = html.AudioElement()
+      ..autoplay = true
+      ..loop = true
+      ..preload = 'auto'
+      ..controls = false
+      ..style.display = 'none'
+      ..setAttribute('playsinline', 'true')
+      ..volume = 0.55;
+    _audioElement = audioElement;
+    _resolvedAudioUrl = _resolveMediaUrl(rawUrl);
+    audioElement.src = _resolvedAudioUrl ?? rawUrl;
+    _wrapperElement?.append(audioElement);
+
+    _audioMetadataSubscription = audioElement.onLoadedMetadata.listen((_) {
+      _seekAudioToStart();
+    });
+
+    _audioCanPlaySubscription = audioElement.onCanPlay.listen((_) {
+      _seekAudioToStart();
+      unawaited(audioElement.play());
+    });
+    _audioErrorSubscription = audioElement.onError.listen((event) {
+      debugPrint(
+        'Background audio failed to load: ${_resolvedAudioUrl ?? rawUrl}',
+      );
+    });
+
+    if (_userInteractionSubscriptions.isEmpty) {
+      _userInteractionSubscriptions.add(
+        html.document.onClick.listen(_handleUserInteractionUnlock),
+      );
+      _userInteractionSubscriptions.add(
+        html.document.onKeyDown.listen(_handleUserInteractionUnlock),
+      );
+    }
+
+    unawaited(audioElement.play());
+  }
+
+  void _updateAudioSource() {
+    final audioUrl = widget.audioUrl;
+    if (audioUrl == null || audioUrl.isEmpty) {
+      _disposeAudioElement();
+      return;
+    }
+    final String? newSource = _resolveMediaUrl(audioUrl);
+    if (_audioElement == null) {
+      _initializeAudioElement(audioUrl);
+      return;
+    }
+    if (newSource == _resolvedAudioUrl) {
+      _seekAudioToStart();
+      return;
+    }
+    _resolvedAudioUrl = newSource;
+    _audioElement!
+      ..pause()
+      ..src = _resolvedAudioUrl ?? audioUrl;
+    _audioElement!.load();
+    _audioStartApplied = false;
+    unawaited(_audioElement!.play());
+  }
+
+  void _disposeAudioElement() {
+    _audioCanPlaySubscription?.cancel();
+    _audioCanPlaySubscription = null;
+    _audioErrorSubscription?.cancel();
+    _audioErrorSubscription = null;
+    if (_audioElement != null) {
+      _audioElement!
+        ..pause()
+        ..removeAttribute('src')
+        ..load();
+      _audioElement!.remove();
+      _audioElement = null;
+      _resolvedAudioUrl = null;
+    }
+    for (final subscription in _userInteractionSubscriptions) {
+      subscription.cancel();
+    }
+    _userInteractionSubscriptions.clear();
+    _audioMetadataSubscription?.cancel();
+    _audioMetadataSubscription = null;
+  }
+
+  void _handleUserInteractionUnlock(html.Event _) {
+    final audioElement = _audioElement;
+    if (audioElement == null || !audioElement.paused) {
+      return;
+    }
+    audioElement.play().catchError((Object error, StackTrace _) {
+      debugPrint('Background audio play blocked: $error');
+    });
+  }
+
+  void _seekAudioToStart() {
+    if (_audioStartApplied) {
+      return;
+    }
+    final audioElement = _audioElement;
+    if (audioElement == null) {
+      return;
+    }
+    final target = widget.audioStartPosition;
+    if (target <= 0) {
+      _audioStartApplied = true;
+      return;
+    }
+    if (audioElement.readyState < html.MediaElement.HAVE_METADATA) {
+      return;
+    }
+    try {
+      audioElement.currentTime = target;
+      _audioStartApplied = true;
+    } catch (error, stackTrace) {
+      debugPrint('Background audio seek failed: $error');
+      debugPrint(stackTrace.toString());
     }
   }
 }

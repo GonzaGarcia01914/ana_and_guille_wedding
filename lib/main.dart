@@ -191,6 +191,7 @@ class WeddingInvitationPage extends StatefulWidget {
   static const WeddingDetails details = WeddingDetails(
     coupleNames: 'Ana & Guilhem',
     videoUrl: 'assets/media/hero.mp4',
+    audioUrl: 'assets/audio/philippe_katerine_louxor_jadore.mp3',
     mapUrl: 'https://maps.app.goo.gl/HyyjJ1SwnHrW1MUf9',
     rsvpEmail: 'anakarinagarcia@gmail.com',
     rsvpPhoneNumber: '595986561861',
@@ -300,6 +301,7 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
   InvitationLocale _locale = InvitationLocale.es;
   Timer? _timer;
   double _scrollOffset = 0;
+  bool _isAudioMuted = false;
 
   @override
   void initState() {
@@ -344,6 +346,12 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
         _locale = locale;
       });
     }
+  }
+
+  void _toggleAudioMute() {
+    setState(() {
+      _isAudioMuted = !_isAudioMuted;
+    });
   }
 
   void _scrollToContent() {
@@ -409,6 +417,9 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
           Positioned.fill(
             child: BackgroundVideo(
               videoUrl: details.videoUrl,
+              audioUrl: details.audioUrl,
+              audioStartPosition: details.audioStartPosition,
+              audioMuted: _isAudioMuted,
               blurSigma: _blurSigma,
               overlayOpacity: _overlayOpacity,
             ),
@@ -577,9 +588,19 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
             top: 24,
             right: isWide ? 32 : 16,
             child: SafeArea(
-              child: _LanguageToggle(
-                selected: _locale,
-                onChanged: _switchLocale,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _MuteToggleButton(
+                    isMuted: _isAudioMuted,
+                    onPressed: _toggleAudioMute,
+                  ),
+                  const SizedBox(width: 12),
+                  _LanguageToggle(
+                    selected: _locale,
+                    onChanged: _switchLocale,
+                  ),
+                ],
               ),
             ),
           ),
@@ -719,6 +740,35 @@ class _LanguageToggle extends StatelessWidget {
   }
 }
 
+class _MuteToggleButton extends StatelessWidget {
+  const _MuteToggleButton({required this.isMuted, required this.onPressed});
+
+  final bool isMuted;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color background = Colors.white.withValues(alpha: 0.35);
+    final Color hoverBackground = Colors.white.withValues(alpha: 0.55);
+    return Tooltip(
+      message: isMuted ? 'Activar sonido' : 'Silenciar sonido',
+      child: IconButton(
+        onPressed: onPressed,
+        icon: Icon(isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded),
+        style: IconButton.styleFrom(
+          backgroundColor: background,
+          foregroundColor: Colors.white,
+          hoverColor: hoverBackground,
+          focusColor: hoverBackground,
+          highlightColor: hoverBackground,
+          padding: const EdgeInsets.all(10),
+          shape: const StadiumBorder(),
+        ),
+      ),
+    );
+  }
+}
+
 class _CountdownSection extends StatelessWidget {
   const _CountdownSection({required this.countdown, required this.strings});
 
@@ -759,8 +809,8 @@ class _CountdownSection extends StatelessWidget {
               final double itemSpacing = isVeryWide
                   ? 22
                   : isNarrow
-                      ? 8
-                      : 14;
+                  ? 8
+                  : 14;
               final double runSpacing = isNarrow ? 4 : 10;
               return Column(
                 children: [
@@ -825,19 +875,23 @@ class _CountdownValue extends StatelessWidget {
     final double circleSize = isVeryWide
         ? 88
         : isNarrow
-            ? 54
-            : 68;
+        ? 54
+        : 68;
     final double fontSize = isVeryWide
         ? 28
         : isNarrow
-            ? 18
-            : 24;
-    final double labelSpacing = isVeryWide ? 10 : isNarrow ? 6 : 8;
+        ? 18
+        : 24;
+    final double labelSpacing = isVeryWide
+        ? 10
+        : isNarrow
+        ? 6
+        : 8;
     final double labelFontSize = isVeryWide
         ? 14
         : isNarrow
-            ? 11
-            : 12;
+        ? 11
+        : 12;
 
     final circleColor = theme.colorScheme.primary.withValues(alpha: 0.78);
     final valueColor = theme.colorScheme.onPrimary;
@@ -1109,6 +1163,8 @@ class WeddingDetails {
   const WeddingDetails({
     required this.coupleNames,
     required this.videoUrl,
+    required this.audioUrl,
+    this.audioStartPosition = 0,
     required this.mapUrl,
     required this.rsvpEmail,
     required this.rsvpPhoneNumber,
@@ -1117,6 +1173,8 @@ class WeddingDetails {
 
   final String coupleNames;
   final String videoUrl;
+  final String audioUrl;
+  final double audioStartPosition;
   final String mapUrl;
   final String rsvpEmail;
   final String rsvpPhoneNumber;
