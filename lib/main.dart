@@ -753,6 +753,15 @@ class _CountdownSection extends StatelessWidget {
             valueListenable: countdown,
             builder: (context, duration, _) {
               final breakdown = _TimeBreakdown.fromDuration(duration);
+              final width = MediaQuery.of(context).size.width;
+              final bool isNarrow = width < 420;
+              final bool isVeryWide = width > 960;
+              final double itemSpacing = isVeryWide
+                  ? 22
+                  : isNarrow
+                      ? 8
+                      : 14;
+              final double runSpacing = isNarrow ? 4 : 10;
               return Column(
                 children: [
                   Text(
@@ -762,11 +771,11 @@ class _CountdownSection extends StatelessWidget {
                       letterSpacing: 2,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   Wrap(
                     alignment: WrapAlignment.center,
-                    spacing: 18,
-                    runSpacing: 18,
+                    spacing: itemSpacing,
+                    runSpacing: runSpacing,
                     children: [
                       _CountdownValue(
                         value: breakdown.days,
@@ -790,11 +799,6 @@ class _CountdownSection extends StatelessWidget {
               );
             },
           ),
-          const SizedBox(height: 24),
-          Text(
-            strings.countdownTargetLabel,
-            style: theme.textTheme.bodyMedium?.copyWith(color: bodyColor),
-          ),
         ],
       ),
     );
@@ -810,37 +814,59 @@ class _CountdownValue extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final border = theme.colorScheme.primary.withValues(alpha: 0.18);
-    final textColor = theme.colorScheme.onSurface;
-    final labelColor = theme.colorScheme.onSurface.withValues(alpha: 0.6);
+    final mediaQuery = MediaQuery.of(context);
+    final width = mediaQuery.size.width;
 
-    return Container(
-      width: 96,
-      padding: const EdgeInsets.symmetric(vertical: 18),
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: border),
-      ),
-      child: Column(
-        children: [
-          Text(
-            value.toString().padLeft(2, '0'),
-            style: theme.textTheme.displaySmall?.copyWith(
-              fontSize: 36,
-              color: textColor,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            label.toUpperCase(),
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: labelColor,
-              letterSpacing: 1.2,
-            ),
-          ),
-        ],
-      ),
+    // Tune sizes so the four items always fit in one row.
+    // We assume a minimum padding of ~32 on each side.
+    final bool isNarrow = width < 420;
+    final bool isVeryWide = width > 960;
+
+    final double circleSize = isVeryWide
+        ? 88
+        : isNarrow
+            ? 54
+            : 68;
+    final double fontSize = isVeryWide
+        ? 28
+        : isNarrow
+            ? 18
+            : 24;
+    final double labelSpacing = isVeryWide ? 10 : isNarrow ? 6 : 8;
+    final double labelFontSize = isVeryWide
+        ? 14
+        : isNarrow
+            ? 11
+            : 12;
+
+    final circleColor = theme.colorScheme.primary.withValues(alpha: 0.78);
+    final valueColor = theme.colorScheme.onPrimary;
+    final labelColor = theme.colorScheme.onSurface.withValues(alpha: 0.75);
+
+    final valueStyle = theme.textTheme.headlineSmall?.copyWith(
+      fontSize: fontSize,
+      fontWeight: FontWeight.w600,
+      color: valueColor,
+    );
+    final labelStyle = theme.textTheme.labelMedium?.copyWith(
+      letterSpacing: 1,
+      fontSize: labelFontSize,
+      color: labelColor,
+    );
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: circleSize,
+          height: circleSize,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(shape: BoxShape.circle, color: circleColor),
+          child: Text(value.toString().padLeft(2, '0'), style: valueStyle),
+        ),
+        SizedBox(height: labelSpacing),
+        Text(label.toUpperCase(), style: labelStyle),
+      ],
     );
   }
 }
@@ -970,7 +996,7 @@ class _MinimalCard extends StatelessWidget {
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: Colors.transparent,
+        color: Colors.black.withValues(alpha: 0.55),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: theme.colorScheme.primary.withValues(alpha: 0.18),
