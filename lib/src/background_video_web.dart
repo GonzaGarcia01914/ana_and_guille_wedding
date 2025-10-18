@@ -16,6 +16,7 @@ class BackgroundVideo extends StatefulWidget {
     required this.overlayOpacity,
     this.audioUrl,
     this.audioStartPosition = 0,
+    this.audioMuted = false,
   });
 
   final String videoUrl;
@@ -23,6 +24,7 @@ class BackgroundVideo extends StatefulWidget {
   final double overlayOpacity;
   final String? audioUrl;
   final double audioStartPosition;
+  final bool audioMuted;
 
   @override
   State<BackgroundVideo> createState() => _BackgroundVideoState();
@@ -30,6 +32,7 @@ class BackgroundVideo extends StatefulWidget {
 
 class _BackgroundVideoState extends State<BackgroundVideo> {
   static final Set<String> _registeredViewTypes = <String>{};
+  static const double _defaultAudioVolume = 0.55;
   late final String _viewType;
   late final html.VideoElement _videoElement;
   html.DivElement? _wrapperElement;
@@ -41,6 +44,8 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
   StreamSubscription<html.Event>? _audioCanPlaySubscription;
   StreamSubscription<html.Event>? _audioErrorSubscription;
   StreamSubscription<html.Event>? _audioMetadataSubscription;
+  StreamSubscription<html.Event>? _audioPlayingSubscription;
+  StreamSubscription<html.Event>? _audioEndedSubscription;
   final List<StreamSubscription<html.Event>> _userInteractionSubscriptions = [];
   bool _audioStartApplied = false;
 
@@ -120,7 +125,11 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
       _updateAudioSource();
     } else if (oldWidget.audioStartPosition != widget.audioStartPosition) {
       _audioStartApplied = false;
-      _seekAudioToStart();
+      _applyAudioStartPosition(force: true);
+      _updateAudioPlaybackMode();
+    }
+    if (oldWidget.audioMuted != widget.audioMuted) {
+      _applyMuteState();
     }
   }
 
@@ -193,23 +202,24 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
   void _initializeAudioElement(String rawUrl) {
     final audioElement = html.AudioElement()
       ..autoplay = true
-      ..loop = true
+      ..loop = widget.audioStartPosition <= 0
       ..preload = 'auto'
       ..controls = false
       ..style.display = 'none'
       ..setAttribute('playsinline', 'true')
-      ..volume = 0.55;
+      ..volume = _defaultAudioVolume;
     _audioElement = audioElement;
     _resolvedAudioUrl = _resolveMediaUrl(rawUrl);
     audioElement.src = _resolvedAudioUrl ?? rawUrl;
     _wrapperElement?.append(audioElement);
 
     _audioMetadataSubscription = audioElement.onLoadedMetadata.listen((_) {
-      _seekAudioToStart();
+      _applyAudioStartPosition(force: true);
     });
 
     _audioCanPlaySubscription = audioElement.onCanPlay.listen((_) {
-      _seekAudioToStart();
+      _applyAudioStartPosition();
+      _applyMuteState();
       unawaited(audioElement.play());
     });
     _audioErrorSubscription = audioElement.onError.listen((event) {
@@ -217,6 +227,11 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
         'Background audio failed to load: ${_resolvedAudioUrl ?? rawUrl}',
       );
     });
+    _audioPlayingSubscription = audioElement.onPlaying.listen((_) {
+      _applyAudioStartPosition();
+      _applyMuteState();
+    });
+    _attachAudioEndHandler();
 
     if (_userInteractionSubscriptions.isEmpty) {
       _userInteractionSubscriptions.add(
@@ -227,6 +242,8 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
       );
     }
 
+    _applyMuteState();
+    _applyAudioStartPosition(force: true);
     unawaited(audioElement.play());
   }
 
@@ -242,15 +259,19 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
       return;
     }
     if (newSource == _resolvedAudioUrl) {
-      _seekAudioToStart();
+      _applyAudioStartPosition(force: true);
+      _applyMuteState();
       return;
     }
     _resolvedAudioUrl = newSource;
+    _audioStartApplied = false;
     _audioElement!
       ..pause()
       ..src = _resolvedAudioUrl ?? audioUrl;
     _audioElement!.load();
-    _audioStartApplied = false;
+    _updateAudioPlaybackMode();
+    _applyMuteState();
+    _applyAudioStartPosition(force: true);
     unawaited(_audioElement!.play());
   }
 
@@ -259,6 +280,10 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
     _audioCanPlaySubscription = null;
     _audioErrorSubscription?.cancel();
     _audioErrorSubscription = null;
+    _audioPlayingSubscription?.cancel();
+    _audioPlayingSubscription = null;
+    _audioEndedSubscription?.cancel();
+    _audioEndedSubscription = null;
     if (_audioElement != null) {
       _audioElement!
         ..pause()
@@ -286,10 +311,7 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
     });
   }
 
-  void _seekAudioToStart() {
-    if (_audioStartApplied) {
-      return;
-    }
+  void _applyAudioStartPosition({bool force = false}) {
     final audioElement = _audioElement;
     if (audioElement == null) {
       return;
@@ -298,6 +320,11 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
     if (target <= 0) {
       _audioStartApplied = true;
       return;
+    }
+    if (!force && _audioStartApplied) {
+      if ((audioElement.currentTime - target).abs() <= 0.1) {
+        return;
+      }
     }
     if (audioElement.readyState < html.MediaElement.HAVE_METADATA) {
       return;
@@ -308,6 +335,53 @@ class _BackgroundVideoState extends State<BackgroundVideo> {
     } catch (error, stackTrace) {
       debugPrint('Background audio seek failed: $error');
       debugPrint(stackTrace.toString());
+    }
+  }
+
+  void _applyMuteState() {
+    final audioElement = _audioElement;
+    if (audioElement == null) {
+      return;
+    }
+    audioElement.muted = widget.audioMuted;
+    audioElement.volume = widget.audioMuted ? 0 : _defaultAudioVolume;
+    if (!widget.audioMuted && audioElement.paused) {
+      unawaited(audioElement.play());
+    }
+  }
+
+  void _attachAudioEndHandler() {
+    _audioEndedSubscription?.cancel();
+    _audioEndedSubscription = null;
+    if (widget.audioStartPosition <= 0) {
+      return;
+    }
+    final audioElement = _audioElement;
+    if (audioElement == null) {
+      return;
+    }
+    _audioEndedSubscription = audioElement.onEnded.listen((_) {
+      _audioStartApplied = false;
+      _applyAudioStartPosition(force: true);
+      _applyMuteState();
+      unawaited(audioElement.play());
+    });
+  }
+
+  void _updateAudioPlaybackMode() {
+    final audioElement = _audioElement;
+    if (audioElement == null) {
+      return;
+    }
+    final bool shouldLoop = widget.audioStartPosition <= 0;
+    audioElement.loop = shouldLoop;
+    if (shouldLoop) {
+      _audioEndedSubscription?.cancel();
+      _audioEndedSubscription = null;
+      _audioStartApplied = true;
+    } else {
+      _attachAudioEndHandler();
+      _audioStartApplied = false;
     }
   }
 }

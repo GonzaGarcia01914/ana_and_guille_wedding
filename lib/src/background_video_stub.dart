@@ -8,11 +8,17 @@ class BackgroundVideo extends StatelessWidget {
     required this.videoUrl,
     required this.blurSigma,
     required this.overlayOpacity,
+    this.audioUrl,
+    this.audioStartPosition = 0,
+    this.audioMuted = false,
   });
 
   final String videoUrl;
   final double blurSigma;
   final double overlayOpacity;
+  final String? audioUrl;
+  final double audioStartPosition;
+  final bool audioMuted;
 
   @override
   Widget build(BuildContext context) {
