@@ -1,4 +1,5 @@
 ﻿import 'dart:async';
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
@@ -191,7 +192,7 @@ class WeddingInvitationPage extends StatefulWidget {
   static const WeddingDetails details = WeddingDetails(
     coupleNames: 'Ana & Guilhem',
     videoUrl: 'assets/media/hero.mp4',
-    audioUrl: 'assets/audio/philippe_katerine_louxor_jadore.mp3',
+    audioUrl: 'assets/audio/version_final.mp3',
     mapUrl: 'https://maps.app.goo.gl/HyyjJ1SwnHrW1MUf9',
     rsvpEmail: 'anakarinagarcia@gmail.com',
     rsvpPhoneNumber: '595986561861',
@@ -302,6 +303,8 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
   Timer? _timer;
   double _scrollOffset = 0;
   bool _isAudioMuted = false;
+  double _introOpacity = 1.0;
+  bool _introDismissed = false;
 
   @override
   void initState() {
@@ -364,6 +367,15 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
       duration: const Duration(milliseconds: 700),
       curve: Curves.easeInOut,
     );
+  }
+
+  void _dismissIntroOverlay() {
+    if (_introDismissed || _introOpacity == 0) {
+      return;
+    }
+    setState(() {
+      _introOpacity = 0;
+    });
   }
 
   Future<void> _openLink(
@@ -596,14 +608,30 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                     onPressed: _toggleAudioMute,
                   ),
                   const SizedBox(width: 12),
-                  _LanguageToggle(
-                    selected: _locale,
-                    onChanged: _switchLocale,
-                  ),
+                  _LanguageToggle(selected: _locale, onChanged: _switchLocale),
                 ],
               ),
             ),
           ),
+          if (!_introDismissed)
+            Positioned.fill(
+              child: AnimatedOpacity(
+                opacity: _introOpacity,
+                duration: const Duration(milliseconds: 600),
+                curve: Curves.easeInOut,
+                onEnd: () {
+                  if (_introOpacity == 0 && !_introDismissed && mounted) {
+                    setState(() {
+                      _introDismissed = true;
+                    });
+                  }
+                },
+                child: IgnorePointer(
+                  ignoring: _introOpacity == 0,
+                  child: _IntroEnvelopeOverlay(onOpened: _dismissIntroOverlay),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -754,7 +782,9 @@ class _MuteToggleButton extends StatelessWidget {
       message: isMuted ? 'Activar sonido' : 'Silenciar sonido',
       child: IconButton(
         onPressed: onPressed,
-        icon: Icon(isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded),
+        icon: Icon(
+          isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+        ),
         style: IconButton.styleFrom(
           backgroundColor: background,
           foregroundColor: Colors.white,
@@ -766,6 +796,289 @@ class _MuteToggleButton extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _IntroEnvelopeOverlay extends StatefulWidget {
+  const _IntroEnvelopeOverlay({required this.onOpened});
+
+  final VoidCallback onOpened;
+
+  @override
+  State<_IntroEnvelopeOverlay> createState() => _IntroEnvelopeOverlayState();
+}
+
+class _IntroEnvelopeOverlayState extends State<_IntroEnvelopeOverlay>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 620),
+  );
+
+  late final Animation<double> _openAnimation = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.easeInOutCubic,
+  );
+
+  bool _hasNotified = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed && !_hasNotified) {
+        _hasNotified = true;
+        Future.delayed(const Duration(milliseconds: 220), () {
+          if (mounted) {
+            widget.onOpened();
+          }
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTap() {
+    if (_controller.isAnimating || _controller.isCompleted) {
+      return;
+    }
+    _controller.forward();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final size = MediaQuery.of(context).size;
+    final double envelopeWidth = (size.shortestSide * 0.72)
+        .clamp(240.0, 420.0)
+        .toDouble();
+    final double envelopeHeight = envelopeWidth * 0.68;
+
+    final double titleFontSize = (envelopeWidth * 0.14).clamp(26.0, 46.0);
+    final double subtitleFontSize = (envelopeWidth * 0.065).clamp(14.0, 20.0);
+
+    final TextStyle titleStyle = GoogleFonts.playfairDisplay(
+      fontSize: titleFontSize,
+      fontWeight: FontWeight.w600,
+      letterSpacing: 1.4,
+      color: const Color(0xFF2F2721),
+    );
+
+    final TextStyle subtitleStyle = GoogleFonts.workSans(
+      fontSize: subtitleFontSize,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 0.8,
+      color: const Color(0xFF4F6F5B),
+    );
+
+    final Color accentColor = theme.colorScheme.primary.withValues(alpha: 0.42);
+
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFF8F1E5), Color(0xFFF1E3D4)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      child: Center(
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: _handleTap,
+          child: AnimatedBuilder(
+            animation: _openAnimation,
+            builder: (context, child) {
+              return Container(
+                width: envelopeWidth,
+                height: envelopeHeight,
+                decoration: const BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0x23000000),
+                      offset: Offset(0, 18),
+                      blurRadius: 38,
+                      spreadRadius: 6,
+                    ),
+                  ],
+                ),
+                child: CustomPaint(
+                  painter: _EnvelopePainter(
+                    bodyColor: const Color(0xFFFEFAF4),
+                    flapColor: const Color(0xFFE5D0B7),
+                    borderColor: const Color(0x338C7A62),
+                    accentColor: accentColor,
+                    openProgress: _openAnimation.value,
+                    titleStyle: titleStyle,
+                    subtitleStyle: subtitleStyle,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EnvelopePainter extends CustomPainter {
+  _EnvelopePainter({
+    required this.bodyColor,
+    required this.flapColor,
+    required this.borderColor,
+    required this.accentColor,
+    required this.openProgress,
+    required this.titleStyle,
+    required this.subtitleStyle,
+  });
+
+  final Color bodyColor;
+  final Color flapColor;
+  final Color borderColor;
+  final Color accentColor;
+  final double openProgress;
+  final TextStyle titleStyle;
+  final TextStyle subtitleStyle;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double flapHeight = size.height * 0.44;
+    final double bodyHeight = size.height - flapHeight;
+    final double horizontalInset = size.width * 0.045;
+    final Rect bodyRect = Rect.fromLTWH(
+      horizontalInset,
+      flapHeight,
+      size.width - (horizontalInset * 2),
+      bodyHeight - (horizontalInset * 0.12),
+    );
+    final double radius = math.min(bodyRect.height * 0.55, size.width * 0.22);
+
+    final RRect bodyRRect = RRect.fromRectAndRadius(
+      bodyRect,
+      Radius.circular(radius),
+    );
+    final Paint bodyPaint = Paint()
+      ..shader = LinearGradient(
+        colors: [
+          bodyColor,
+          Color.lerp(bodyColor, const Color(0xFFE7D9C9), 0.28)!,
+        ],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(bodyRect);
+    canvas.drawRRect(bodyRRect, bodyPaint);
+
+    final Paint bodyBorderPaint = Paint()
+      ..color = borderColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = size.width * 0.012;
+    canvas.drawRRect(bodyRRect, bodyBorderPaint);
+
+    final Offset sealCenter = Offset(
+      size.width / 2,
+      bodyRect.bottom - radius * 0.45,
+    );
+    final double sealRadius = size.width * 0.045;
+    final Paint sealPaint = Paint()..color = accentColor.withValues(alpha: 0.7);
+    canvas.drawCircle(sealCenter, sealRadius, sealPaint);
+    final Paint sealHighlightPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.65);
+    canvas.drawCircle(
+      sealCenter.translate(-sealRadius * 0.35, -sealRadius * 0.35),
+      sealRadius * 0.28,
+      sealHighlightPaint,
+    );
+
+    final Paint foldPaint = Paint()
+      ..color = accentColor.withValues(alpha: 0.65)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = size.width * 0.01
+      ..strokeCap = StrokeCap.round;
+    final Offset leftFoldStart = Offset(
+      bodyRect.left + radius * 0.15,
+      flapHeight + bodyHeight * 0.42,
+    );
+    final Offset rightFoldStart = Offset(
+      bodyRect.right - radius * 0.15,
+      flapHeight + bodyHeight * 0.42,
+    );
+    canvas.drawLine(leftFoldStart, sealCenter, foldPaint);
+    canvas.drawLine(rightFoldStart, sealCenter, foldPaint);
+
+    final TextPainter titlePainter = TextPainter(
+      text: TextSpan(text: 'Para ti', style: titleStyle),
+      textDirection: TextDirection.ltr,
+      maxLines: 1,
+    )..layout(maxWidth: bodyRect.width * 0.8);
+    final double titleTop = flapHeight + bodyRect.height * 0.28;
+    titlePainter.paint(
+      canvas,
+      Offset(
+        bodyRect.left + (bodyRect.width - titlePainter.width) / 2,
+        titleTop,
+      ),
+    );
+
+    final TextPainter subtitlePainter = TextPainter(
+      text: TextSpan(text: 'Toca para abrir', style: subtitleStyle),
+      textDirection: TextDirection.ltr,
+      maxLines: 1,
+    )..layout(maxWidth: bodyRect.width * 0.75);
+    subtitlePainter.paint(
+      canvas,
+      Offset(
+        bodyRect.left + (bodyRect.width - subtitlePainter.width) / 2,
+        titleTop + titlePainter.height + bodyRect.height * 0.09,
+      ),
+    );
+
+    final double angle = openProgress * math.pi * 0.95;
+    final Offset pivot = Offset(size.width / 2, bodyRect.top);
+    canvas.save();
+    canvas.translate(pivot.dx, pivot.dy);
+    canvas.rotate(-angle);
+    canvas.translate(-pivot.dx, -pivot.dy);
+
+    final Path flapPath = Path()
+      ..moveTo(bodyRect.left, bodyRect.top)
+      ..lineTo(size.width / 2, bodyRect.top - flapHeight * 0.9)
+      ..lineTo(bodyRect.right, bodyRect.top)
+      ..close();
+
+    final Rect flapBounds = Rect.fromLTWH(
+      bodyRect.left,
+      bodyRect.top - flapHeight,
+      bodyRect.width,
+      flapHeight,
+    );
+    final Paint flapPaint = Paint()
+      ..shader = LinearGradient(
+        colors: [Color.lerp(flapColor, Colors.white, 0.2)!, flapColor],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(flapBounds);
+    canvas.drawPath(flapPath, flapPaint);
+
+    final Paint flapBorderPaint = Paint()
+      ..color = borderColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = size.width * 0.01;
+    canvas.drawPath(flapPath, flapBorderPaint);
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant _EnvelopePainter oldDelegate) {
+    return oldDelegate.bodyColor != bodyColor ||
+        oldDelegate.flapColor != flapColor ||
+        oldDelegate.borderColor != borderColor ||
+        oldDelegate.accentColor != accentColor ||
+        oldDelegate.openProgress != openProgress;
   }
 }
 
