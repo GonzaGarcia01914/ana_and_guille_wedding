@@ -8,13 +8,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:invitacion_boda_mama/background_video.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'src/google_user_name.dart';
-
-const String _googleClientId = String.fromEnvironment(
-  'GOOGLE_CLIENT_ID',
-  defaultValue: '',
-);
-
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -928,17 +921,10 @@ class _IntroBloomOverlay extends StatefulWidget {
 class _IntroBloomOverlayState extends State<_IntroBloomOverlay>
     with SingleTickerProviderStateMixin {
   bool _hasTapped = false;
-  String? _guestName;
   late final AnimationController _pulseController = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 2200),
   )..repeat(reverse: true);
-
-  @override
-  void initState() {
-    super.initState();
-    _maybeLoadGuestName();
-  }
 
   @override
   void dispose() {
@@ -972,20 +958,6 @@ class _IntroBloomOverlayState extends State<_IntroBloomOverlay>
       fontSize: isWide ? 54 : 38,
       shadows: const [Shadow(color: Colors.black45, blurRadius: 18)],
     );
-    final TextStyle? subtitleStyle = theme.textTheme.bodyLarge?.copyWith(
-      color: Colors.white.withValues(alpha: 0.88),
-      letterSpacing: 0.6,
-      fontSize: isWide ? 18 : 16,
-    );
-    final String buttonLabel = _hasTapped
-        ? 'Preparando la magia...'
-        : 'Toca para abrir';
-    String? infoText;
-    if (_guestName != null && _guestName!.isNotEmpty) {
-      infoText = 'Para ${_guestName!}';
-    } else if (_hasTapped) {
-      infoText = 'Preparando la magia...';
-    }
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -1049,25 +1021,7 @@ class _IntroBloomOverlayState extends State<_IntroBloomOverlay>
                       style: titleStyle,
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 12),
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 320),
-                      child: infoText != null
-                          ? Padding(
-                              key: const ValueKey('info-text'),
-                              padding: const EdgeInsets.only(bottom: 6),
-                              child: Text(
-                                infoText,
-                                style: subtitleStyle,
-                                textAlign: TextAlign.center,
-                              ),
-                            )
-                          : SizedBox(
-                              key: const ValueKey('info-empty'),
-                              height: isWide ? 10 : 6,
-                            ),
-                    ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 32),
                     ElevatedButton.icon(
                       onPressed: _hasTapped ? null : _handleTap,
                       style: ElevatedButton.styleFrom(
@@ -1085,8 +1039,10 @@ class _IntroBloomOverlayState extends State<_IntroBloomOverlay>
                       label: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 220),
                         child: Text(
-                          buttonLabel,
-                          key: ValueKey(buttonLabel),
+                          _hasTapped
+                              ? 'Preparando la magia...'
+                              : 'Toca para abrir',
+                          key: ValueKey(_hasTapped),
                           style: const TextStyle(
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.8,
@@ -1102,22 +1058,6 @@ class _IntroBloomOverlayState extends State<_IntroBloomOverlay>
         ),
       ),
     );
-  }
-
-  Future<void> _maybeLoadGuestName() async {
-    if (!kIsWeb || _googleClientId.isEmpty) {
-      return;
-    }
-    final name = await fetchGoogleUserName(clientId: _googleClientId);
-    if (!mounted) {
-      return;
-    }
-    if (name == null || name.trim().isEmpty) {
-      return;
-    }
-    setState(() {
-      _guestName = name.trim();
-    });
   }
 }
 
