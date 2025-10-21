@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
 
@@ -7,6 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:invitacion_boda_mama/background_video.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'src/google_user_name.dart';
+
+const String _googleClientId = String.fromEnvironment(
+  'GOOGLE_CLIENT_ID',
+  defaultValue: '',
+);
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -56,48 +63,50 @@ class WeddingInvitationApp extends StatelessWidget {
     );
 
     final textTheme = TextTheme(
-      displayLarge: GoogleFonts.playfairDisplay(
+      displayLarge: GoogleFonts.cormorantGaramond(
         fontSize: 60,
         fontWeight: FontWeight.w600,
-        letterSpacing: 1.6,
+        letterSpacing: 1.2,
         color: Colors.white,
       ),
-      displaySmall: GoogleFonts.playfairDisplay(
+      displaySmall: GoogleFonts.cormorantGaramond(
         fontSize: 42,
         fontWeight: FontWeight.w600,
-        letterSpacing: 1.1,
+        letterSpacing: 0.8,
         color: colorScheme.onSurface,
       ),
-      headlineMedium: GoogleFonts.playfairDisplay(
-        fontSize: 27,
+      headlineMedium: GoogleFonts.cormorantGaramond(
+        fontSize: 28,
         fontWeight: FontWeight.w500,
+        letterSpacing: 0.6,
         color: colorScheme.onSurface,
       ),
-      headlineSmall: GoogleFonts.playfairDisplay(
+      headlineSmall: GoogleFonts.cormorantGaramond(
         fontSize: 22,
         fontWeight: FontWeight.w500,
-        color: colorScheme.onSurface,
-      ),
-      titleMedium: GoogleFonts.workSans(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
         letterSpacing: 0.5,
         color: colorScheme.onSurface,
       ),
-      bodyLarge: GoogleFonts.workSans(
-        fontSize: 18,
-        height: 1.6,
+      titleMedium: GoogleFonts.sourceSans3(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.4,
         color: colorScheme.onSurface,
       ),
-      bodyMedium: GoogleFonts.workSans(
+      bodyLarge: GoogleFonts.sourceSans3(
+        fontSize: 18,
+        height: 1.65,
+        color: colorScheme.onSurface,
+      ),
+      bodyMedium: GoogleFonts.sourceSans3(
         fontSize: 16,
         height: 1.6,
         color: colorScheme.onSurface.withValues(alpha: 0.72),
       ),
-      labelLarge: GoogleFonts.workSans(
+      labelLarge: GoogleFonts.sourceSans3(
         fontSize: 15,
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0.5,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0.6,
         color: colorScheme.onPrimary,
       ),
     );
@@ -192,32 +201,31 @@ class WeddingInvitationPage extends StatefulWidget {
   static const WeddingDetails details = WeddingDetails(
     coupleNames: 'Ana & Guilhem',
     videoUrl: 'assets/media/hero.mp4',
-    audioUrl: 'assets/audio/version_final.mp3',
+    audioUrl: 'assets/audio/Philippe_Katerine_-_Louxor_j_adore_recortada.mp3',
     mapUrl: 'https://maps.app.goo.gl/HyyjJ1SwnHrW1MUf9',
     rsvpEmail: 'anakarinagarcia@gmail.com',
     rsvpPhoneNumber: '595986561861',
     localized: {
       InvitationLocale.es: LocaleStrings(
         heroTagline: '',
+        scrollPromptLabel: 'Pulsa aqu\u00ed',
         celebrationDate:
-            'El sábado 19 de septiembre a las 12:00 hs del 2026 en nuestra querida Monoblet.',
+            'Te esperamos el s\u00e1bado 19 de septiembre de 2026, a las 12:00 hs.',
         countdownTitle: 'Cuenta regresiva',
         countdownSubtitle: 'Hasta el 19 de septiembre de 2026',
         countdownLeadLabel: 'Faltan',
-        countdownTargetLabel: '19 de septiembre de 2026 · Monoblet',
-        daysLabel: 'Días',
+        countdownTargetLabel: '19 de septiembre de 2026 - Monoblet',
+        daysLabel: 'D\u00edas',
         hoursLabel: 'Horas',
         minutesLabel: 'Minutos',
         secondsLabel: 'Segundos',
         storyLines: [
-          'Diez años, muchas aventuras,',
-          'Una historia ❤️',
-          'Y ahora… la más especial de todas....',
-          'Está vez queremos que seas parte....',
+          'Despu\u00e9s de 10 a\u00f1os juntos y tantas aventuras,',
+          'decidimos vivir la m\u00e1s Especial de Todas.',
         ],
         storyInvite:
-            '¡Te invitamos a compartir con nosotros este momento tan especial!',
-        locationTitle: 'Ubicación',
+            '\u00a1Esta vez queremos que seas parte y nos acompa\u00f1es!',
+        locationTitle: 'Ubicaci\u00f3n',
         venueName: 'Le Chat',
         locationSummary: 'Monoblet, Francia',
         fullAddress: 'Le Chat, Monoblet, Francia',
@@ -225,43 +233,40 @@ class WeddingInvitationPage extends StatefulWidget {
         calendarButtonLabel: 'Agregar al calendario',
         calendarTitle: 'Boda',
         calendarDescription:
-            'Celebramos nuestra boda en Le Chat, Monoblet. ¡Te esperamos para brindar juntos!',
+            'Celebramos nuestra boda en Le Chat, Monoblet. \u00a1Te esperamos para brindar juntos!',
         rsvpTitle: 'Confirmar asistencia',
         rsvpDateLimit: '',
         emailButtonLabel: 'Enviar correo',
-        whatsappButtonLabel: 'Mensaje por WhatsApp',
-        emailSubject: 'Confirmación de asistencia',
+        whatsappButtonLabel: 'WhatsApp con Guille',
+        emailSubject: 'Confirmaci\u00f3n de asistencia',
         whatsappMessage:
-            'Hola, quiero confirmar mi asistencia a la boda de Ana y Guilhem.',
+            'Hola Guille, quiero confirmar mi asistencia a la boda de Ana y Guilhem.',
         dressCodeLabel: 'Dress code',
-        dressCode:
-            'Elegante relajado en tonos neutros, tierra o verdes suaves.',
-        registryLabel: 'Regalo',
-        registryNote: 'Tu presencia es nuestro mejor regalo',
-        footerMessage: 'Gracias por ser parte de este capítulo tan importante.',
+        dressCode: 'Elegante relajado. Tonos neutros, tierra y naturales.',
+        footerMessage:
+            'Gracias por ser parte de este Momento tan especial para nosotros!',
         linkErrorMessage:
-            'No pudimos abrir el enlace. Podés copiarlo desde la invitación.',
+            'No pudimos abrir el enlace. Pod\u00e9s copiarlo desde la invitaci\u00f3n.',
       ),
       InvitationLocale.fr: LocaleStrings(
         heroTagline: '',
+        scrollPromptLabel: 'Appuie ici',
         celebrationDate:
-            'Le samedi 19 septembre a 12h00 en notre chere Monoblet.',
-        countdownTitle: 'Compte a rebours',
+            "Nous t'attendons le samedi 19 septembre 2026 \u00e0 12h00 \u00e0 Monoblet.",
+        countdownTitle: 'Compte \u00e0 rebours',
         countdownSubtitle: "Jusqu'au 19 septembre 2026",
         countdownLeadLabel: 'Plus que',
-        countdownTargetLabel: '19 septembre 2026 · Monoblet',
+        countdownTargetLabel: '19 septembre 2026 - Monoblet',
         daysLabel: 'Jours',
         hoursLabel: 'Heures',
         minutesLabel: 'Minutes',
         secondsLabel: 'Secondes',
         storyLines: [
-          "Dix ans, tant d'aventures,",
-          'Une histoire ❤️',
-          'Et maintenant... la plus speciale de toutes....',
-          "Cette fois, nous voulons que tu en fasses partie....",
+          "Apr\u00e8s dix ans ensemble et tant d'aventures,",
+          'nous avons d\u00e9cid\u00e9 de vivre la plus Sp\u00e9ciale de Toutes.',
         ],
         storyInvite:
-            "Nous t'invitons a partager ce moment si special avec nous !",
+            "Cette fois, nous voulons que tu en fasses partie et que tu nous accompagnes !",
         locationTitle: 'Localisation',
         venueName: 'Le Chat',
         locationSummary: 'Monoblet, France',
@@ -270,20 +275,19 @@ class WeddingInvitationPage extends StatefulWidget {
         calendarButtonLabel: 'Ajouter au calendrier',
         calendarTitle: 'Mariage',
         calendarDescription:
-            "Nous celebrons notre mariage a Le Chat, Monoblet. Nous t'attendons pour trinquer ensemble !",
-        rsvpTitle: 'Confirmer ta presence',
+            "Nous c\u00e9l\u00e9brons notre mariage \u00e0 Le Chat, Monoblet. Nous t'attendons pour trinquer ensemble !",
+        rsvpTitle: 'Confirmer ta pr\u00e9sence',
         rsvpDateLimit: '',
         emailButtonLabel: 'Envoyer un e-mail',
-        whatsappButtonLabel: 'Message WhatsApp',
-        emailSubject: 'Confirmation de presence',
+        whatsappButtonLabel: 'WhatsApp avec Guille',
+        emailSubject: 'Confirmation de pr\u00e9sence',
         whatsappMessage:
-            'Bonjour ! Je souhaite confirmer ma presence au mariage de Ana et Guilhem.',
+            "Bonjour Guille ! Je souhaite confirmer ma pr\u00e9sence au mariage d'Ana et Guilhem.",
         dressCodeLabel: 'Tenue',
         dressCode:
-            'Elegant decontracte dans des tons neutres, terre ou verts doux.',
-        registryLabel: 'Cadeau',
-        registryNote: 'Ta presence est notre plus beau cadeau',
-        footerMessage: 'Merci de faire partie de ce chapitre si important.',
+            '\u00c9l\u00e9gant d\u00e9contract\u00e9. Tons neutres, terre et naturels.',
+        footerMessage:
+            'Merci de faire partie de ce moment si sp\u00e9cial pour nous !',
         linkErrorMessage:
             "Nous n'avons pas pu ouvrir le lien. Tu peux le copier depuis l'invitation.",
       ),
@@ -305,6 +309,7 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
   bool _isAudioMuted = true;
   double _introOpacity = 1.0;
   bool _introDismissed = false;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -312,6 +317,15 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
     _scrollController.addListener(_handleScroll);
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       _countdownNotifier.value = _timeRemaining();
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(milliseconds: 1200));
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isLoading = false;
+      });
     });
   }
 
@@ -420,8 +434,6 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
     final horizontalPadding = isWide ? 160.0 : 24.0;
     final heroHeight = size.height;
 
-    final mailtoUrl =
-        'mailto:${details.rsvpEmail}?subject=${Uri.encodeComponent(strings.emailSubject)}';
     final whatsappUrl =
         'https://wa.me/${details.rsvpPhoneNumber}?text=${Uri.encodeComponent(strings.whatsappMessage)}';
     final calendarUrl = _buildCalendarUrl(details, strings);
@@ -481,6 +493,7 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                   vertical: isWide ? 72 : 48,
                                 ),
                                 child: _HeroOverlay(
+                                  scrollPromptLabel: strings.scrollPromptLabel,
                                   onScrollPromptTap: _scrollToContent,
                                 ),
                               ),
@@ -569,21 +582,11 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                             ElevatedButton.icon(
                                               onPressed: () => _openLink(
                                                 context,
-                                                mailtoUrl,
-                                                strings.linkErrorMessage,
-                                              ),
-                                              icon: const Icon(
-                                                Icons.email_outlined,
-                                              ),
-                                              label: Text(
-                                                strings.emailButtonLabel,
-                                              ),
-                                            ),
-                                            OutlinedButton.icon(
-                                              onPressed: () => _openLink(
-                                                context,
                                                 whatsappUrl,
                                                 strings.linkErrorMessage,
+                                              ),
+                                              style: ElevatedButton.styleFrom(
+                                                elevation: 0,
                                               ),
                                               icon: const Icon(
                                                 Icons.chat_bubble_outline,
@@ -599,12 +602,6 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                           icon: Icons.style_outlined,
                                           label: strings.dressCodeLabel,
                                           value: strings.dressCode,
-                                        ),
-                                        const SizedBox(height: 16),
-                                        _InfoRow(
-                                          icon: Icons.card_giftcard_outlined,
-                                          label: strings.registryLabel,
-                                          value: strings.registryNote,
                                         ),
                                       ],
                                     ),
@@ -667,6 +664,14 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                 ),
               ),
             ),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 600),
+            switchInCurve: Curves.easeOut,
+            switchOutCurve: Curves.easeIn,
+            child: _isLoading
+                ? const Positioned.fill(child: _LoadingOverlay())
+                : const SizedBox.shrink(),
+          ),
         ],
       ),
     );
@@ -674,9 +679,13 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
 }
 
 class _HeroOverlay extends StatefulWidget {
-  const _HeroOverlay({required this.onScrollPromptTap});
+  const _HeroOverlay({
+    required this.onScrollPromptTap,
+    required this.scrollPromptLabel,
+  });
 
   final VoidCallback onScrollPromptTap;
+  final String scrollPromptLabel;
 
   @override
   State<_HeroOverlay> createState() => _HeroOverlayState();
@@ -703,50 +712,123 @@ class _HeroOverlayState extends State<_HeroOverlay>
   @override
   Widget build(BuildContext context) {
     final bool isWide = MediaQuery.of(context).size.width >= 720;
-    final double iconSize = isWide ? 26 : 22;
+    final double horizontalPadding = isWide ? 26 : 22;
+    final double verticalPadding = isWide ? 14 : 12;
+    const Color buttonColor = Color(0xFFD64545);
 
     return Column(
       children: [
         const Spacer(),
-        GestureDetector(
-          onTap: widget.onScrollPromptTap,
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: isWide ? 22 : 18,
-              vertical: isWide ? 12 : 10,
+        AnimatedBuilder(
+          animation: _offset,
+          builder: (context, child) {
+            return Transform.translate(
+              offset: Offset(0, _offset.value),
+              child: child,
+            );
+          },
+          child: ElevatedButton.icon(
+            onPressed: widget.onScrollPromptTap,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: buttonColor,
+              foregroundColor: Colors.white,
+              elevation: 6,
+              shadowColor: Colors.black.withValues(alpha: 0.28),
+              padding: EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
+                vertical: verticalPadding,
+              ),
+              shape: const StadiumBorder(),
             ),
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.24),
-              borderRadius: BorderRadius.circular(36),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.22),
-                  offset: const Offset(0, 8),
-                  blurRadius: 18,
-                ),
-              ],
-            ),
-            child: AnimatedBuilder(
-              animation: _offset,
-              builder: (context, child) {
-                return Transform.translate(
-                  offset: Offset(0, _offset.value),
-                  child: child,
-                );
-              },
-              child: Text(
-                '👇',
-                style: TextStyle(
-                  fontSize: iconSize,
-                  color: Colors.white.withValues(alpha: 0.92),
-                ),
+            icon: const Icon(Icons.south_rounded),
+            label: Text(
+              widget.scrollPromptLabel,
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.8,
               ),
             ),
           ),
         ),
         SizedBox(height: isWide ? 26 : 16),
       ],
+    );
+  }
+}
+
+class _LoadingOverlay extends StatelessWidget {
+  const _LoadingOverlay();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bool isWide = MediaQuery.of(context).size.width >= 640;
+    final TextStyle? titleStyle = theme.textTheme.displaySmall?.copyWith(
+      color: Colors.white,
+      letterSpacing: isWide ? 1.4 : 1.1,
+      fontSize: isWide ? 48 : 36,
+      shadows: const [Shadow(color: Colors.black45, blurRadius: 18)],
+    );
+    final TextStyle? subtitleStyle = theme.textTheme.bodyLarge?.copyWith(
+      color: Colors.white.withValues(alpha: 0.82),
+      letterSpacing: 0.6,
+    );
+    return IgnorePointer(
+      ignoring: true,
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF2F3C35), Color(0xFF4F6F5B)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.15),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.35),
+                    width: 1.6,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.18),
+                      blurRadius: 26,
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.favorite,
+                  size: isWide ? 34 : 28,
+                  color: theme.colorScheme.tertiary,
+                ),
+              ),
+              const SizedBox(height: 26),
+              Text('Ana & Guilhem', style: titleStyle),
+              const SizedBox(height: 14),
+              Text('Preparando la magia...', style: subtitleStyle),
+              const SizedBox(height: 26),
+              SizedBox(
+                height: 26,
+                width: 26,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    theme.colorScheme.tertiary,
+                  ),
+                  backgroundColor: Colors.white.withValues(alpha: 0.28),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -785,11 +867,11 @@ class _LanguageToggle extends StatelessWidget {
       segments: const [
         ButtonSegment<InvitationLocale>(
           value: InvitationLocale.es,
-          label: Text('ES'),
+          label: Text('🇪🇸', style: TextStyle(fontSize: 16)),
         ),
         ButtonSegment<InvitationLocale>(
           value: InvitationLocale.fr,
-          label: Text('FR'),
+          label: Text('🇫🇷', style: TextStyle(fontSize: 16)),
         ),
       ],
       showSelectedIcon: false,
@@ -844,57 +926,23 @@ class _IntroBloomOverlay extends StatefulWidget {
 }
 
 class _IntroBloomOverlayState extends State<_IntroBloomOverlay>
-    with TickerProviderStateMixin {
-  late final AnimationController _ambientController;
-  late final AnimationController _revealController;
-  late final Animation<double> _revealProgress;
-
-  bool _hasNotified = false;
+    with SingleTickerProviderStateMixin {
   bool _hasTapped = false;
-  double _ambientPhase = 0;
-  double _lastAmbientValue = 0;
+  String? _guestName;
+  late final AnimationController _pulseController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 2200),
+  )..repeat(reverse: true);
 
   @override
   void initState() {
     super.initState();
-    _ambientController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 12),
-    );
-    _ambientController.addListener(() {
-      final double value = _ambientController.value;
-      if (value < _lastAmbientValue) {
-        _ambientPhase += math.pi * 2;
-      }
-      _lastAmbientValue = value;
-    });
-    _ambientController.repeat();
-
-    _revealController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    );
-    _revealProgress = CurvedAnimation(
-      parent: _revealController,
-      curve: Curves.easeOutCubic,
-    );
-
-    _revealController.addStatusListener((status) {
-      if (status == AnimationStatus.completed && !_hasNotified) {
-        _hasNotified = true;
-        Future.delayed(const Duration(milliseconds: 160), () {
-          if (mounted) {
-            widget.onOpened();
-          }
-        });
-      }
-    });
+    _maybeLoadGuestName();
   }
 
   @override
   void dispose() {
-    _ambientController.dispose();
-    _revealController.dispose();
+    _pulseController.dispose();
     super.dispose();
   }
 
@@ -905,338 +953,197 @@ class _IntroBloomOverlayState extends State<_IntroBloomOverlay>
     setState(() {
       _hasTapped = true;
     });
-    _revealController.forward();
+    Future.delayed(const Duration(milliseconds: 680), () {
+      if (mounted) {
+        widget.onOpened();
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final mediaQuery = MediaQuery.of(context);
-    final size = mediaQuery.size;
-    final bool isWide = size.shortestSide >= 540;
+    final size = MediaQuery.of(context).size;
+    final bool isWide = size.shortestSide >= 560;
     final bool isCompact = size.shortestSide <= 360;
-    final double cardMaxWidth = isWide
-        ? math.min(size.width * 0.58, 540)
-        : math.min(size.width * 0.9, size.width - 24);
-
-    final palette = <Color>[
-      const Color(0xFF8C6A8A),
-      theme.colorScheme.tertiary.withValues(alpha: 0.85),
-      theme.colorScheme.primary.withValues(alpha: 0.8),
-      const Color(0xFF9AB7A6),
-    ];
+    final TextStyle? titleStyle = theme.textTheme.displaySmall?.copyWith(
+      color: Colors.white,
+      letterSpacing: isWide ? 1.6 : 1.2,
+      fontSize: isWide ? 54 : 38,
+      shadows: const [Shadow(color: Colors.black45, blurRadius: 18)],
+    );
+    final TextStyle? subtitleStyle = theme.textTheme.bodyLarge?.copyWith(
+      color: Colors.white.withValues(alpha: 0.88),
+      letterSpacing: 0.6,
+      fontSize: isWide ? 18 : 16,
+    );
+    final String buttonLabel = _hasTapped
+        ? 'Preparando la magia...'
+        : 'Toca para abrir';
+    String? infoText;
+    if (_guestName != null && _guestName!.isNotEmpty) {
+      infoText = 'Para ${_guestName!}';
+    } else if (_hasTapped) {
+      infoText = 'Preparando la magia...';
+    }
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: _handleTap,
-      child: AnimatedBuilder(
-        animation: Listenable.merge([_ambientController, _revealProgress]),
-        builder: (context, _) {
-          final double animatedProgress = _revealProgress.value;
-          final double animatedTime =
-              _ambientPhase + _ambientController.value * math.pi * 2;
-          final double idlePulse = math.sin(animatedTime * 1.25) * 0.015;
-          final double callToActionOpacity = _hasTapped
-              ? (1 - animatedProgress).clamp(0.0, 1.0)
-              : 1.0;
-          final double callToActionScale = _hasTapped
-              ? (1.0 + animatedProgress * 0.18)
-              : (1.0 + idlePulse);
-
-          return Stack(
-            fit: StackFit.expand,
-            children: [
-              CustomPaint(
-                painter: _BloomPainter(
-                  progress: animatedProgress,
-                  time: animatedTime,
-                  palette: palette,
-                  glowColor: theme.colorScheme.primary,
-                ),
-              ),
-              Center(
-                child: Opacity(
-                  opacity: callToActionOpacity,
-                  child: Transform.scale(
-                    scale: callToActionScale,
-                    child: _IntroBloomCallToAction(
-                      isWide: isWide,
-                      isCompact: isCompact,
-                      hasTapped: _hasTapped,
-                      maxWidth: cardMaxWidth,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _IntroBloomCallToAction extends StatelessWidget {
-  const _IntroBloomCallToAction({
-    required this.isWide,
-    required this.isCompact,
-    required this.hasTapped,
-    required this.maxWidth,
-  });
-
-  final bool isWide;
-  final bool isCompact;
-  final bool hasTapped;
-  final double maxWidth;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final double horizontalPadding = isWide
-        ? 44
-        : isCompact
-        ? 20
-        : 28;
-    final double verticalPadding = isWide
-        ? 32
-        : isCompact
-        ? 18
-        : 24;
-    final double titleFontSize = isWide
-        ? 48
-        : isCompact
-        ? 32
-        : 36;
-    final double subtitleFontSize = isWide
-        ? 20
-        : isCompact
-        ? 16
-        : 18;
-    final double iconSize = isWide
-        ? 28
-        : isCompact
-        ? 22
-        : 24;
-    final double titleSpacing = isWide
-        ? 22
-        : isCompact
-        ? 16
-        : 18;
-
-    final TextStyle? titleStyle = theme.textTheme.displaySmall?.copyWith(
-      color: Colors.white,
-      fontSize: titleFontSize,
-      letterSpacing: isWide ? 1.6 : 1.2,
-      height: 1.08,
-      shadows: const [Shadow(color: Colors.black45, blurRadius: 16)],
-    );
-    final TextStyle? subtitleStyle = theme.textTheme.bodyLarge?.copyWith(
-      color: Colors.white.withValues(alpha: 0.9),
-      fontSize: subtitleFontSize,
-      height: 1.35,
-    );
-
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-        maxWidth: maxWidth,
-        minWidth: math.min(maxWidth, isCompact ? 220 : 280),
-      ),
+      onTap: _hasTapped ? null : _handleTap,
       child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: horizontalPadding,
-          vertical: verticalPadding,
-        ),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(isWide ? 44 : 34),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.52),
-            width: 1.4,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF2F3C35), Color(0xFF4F6F5B)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x33000000),
-              blurRadius: 24,
-              offset: Offset(0, 18),
-            ),
-          ],
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: Stack(
           children: [
-            Text(
-              'Ana & Guilhem',
-              style: titleStyle,
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: titleSpacing),
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 360),
-              switchInCurve: Curves.easeOut,
-              switchOutCurve: Curves.easeIn,
-              layoutBuilder: (currentChild, previousChildren) => Stack(
-                alignment: Alignment.center,
-                children: [
-                  ...previousChildren,
-                  if (currentChild != null) currentChild,
-                ],
+            Positioned.fill(
+              child: CustomPaint(
+                painter: _IntroGlowPainter(color: theme.colorScheme.tertiary),
               ),
-              child: hasTapped
-                  ? Row(
-                      key: const ValueKey('opening'),
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.auto_awesome_rounded,
-                          color: Colors.white.withValues(alpha: 0.9),
-                          size: iconSize,
+            ),
+            Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: isCompact ? 28 : 48),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AnimatedBuilder(
+                      animation: _pulseController,
+                      builder: (context, child) {
+                        final scale =
+                            1 +
+                            (_hasTapped ? 0.04 : 0.08) *
+                                math.sin(_pulseController.value * math.pi * 2);
+                        return Transform.scale(scale: scale, child: child);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(isWide ? 24 : 18),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.18),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.35),
+                            width: 1.6,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.2),
+                              blurRadius: 24,
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 10),
-                        Text('Preparando la magia...', style: subtitleStyle),
-                      ],
-                    )
-                  : Wrap(
-                      key: const ValueKey('cta'),
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 10,
-                      runSpacing: 6,
-                      children: [
-                        Icon(
-                          Icons.play_arrow_rounded,
-                          color: Colors.white.withValues(alpha: 0.9),
-                          size: iconSize,
+                        child: Icon(
+                          Icons.favorite,
+                          size: isWide ? 40 : 32,
+                          color: theme.colorScheme.tertiary,
                         ),
-                        SizedBox(
-                          width: isCompact
-                              ? math.max(
-                                  0,
-                                  maxWidth - (horizontalPadding * 2 + 8),
-                                )
-                              : null,
-                          child: Text(
-                            'Toca para abrir',
-                            style: subtitleStyle,
-                            textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    Text(
+                      'Ana & Guilhem',
+                      style: titleStyle,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 320),
+                      child: infoText != null
+                          ? Padding(
+                              key: const ValueKey('info-text'),
+                              padding: const EdgeInsets.only(bottom: 6),
+                              child: Text(
+                                infoText,
+                                style: subtitleStyle,
+                                textAlign: TextAlign.center,
+                              ),
+                            )
+                          : SizedBox(
+                              key: const ValueKey('info-empty'),
+                              height: isWide ? 10 : 6,
+                            ),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: _hasTapped ? null : _handleTap,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFD64545),
+                        foregroundColor: Colors.white,
+                        elevation: 6,
+                        shadowColor: Colors.black.withValues(alpha: 0.28),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isWide ? 38 : 28,
+                          vertical: isWide ? 16 : 14,
+                        ),
+                        shape: const StadiumBorder(),
+                      ),
+                      icon: const Icon(Icons.play_arrow_rounded),
+                      label: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 220),
+                        child: Text(
+                          buttonLabel,
+                          key: ValueKey(buttonLabel),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.8,
                           ),
                         ),
-                      ],
+                      ),
                     ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
       ),
     );
   }
+
+  Future<void> _maybeLoadGuestName() async {
+    if (!kIsWeb || _googleClientId.isEmpty) {
+      return;
+    }
+    final name = await fetchGoogleUserName(clientId: _googleClientId);
+    if (!mounted) {
+      return;
+    }
+    if (name == null || name.trim().isEmpty) {
+      return;
+    }
+    setState(() {
+      _guestName = name.trim();
+    });
+  }
 }
 
-class _BloomPainter extends CustomPainter {
-  _BloomPainter({
-    required this.progress,
-    required this.time,
-    required this.palette,
-    required this.glowColor,
-  });
+class _IntroGlowPainter extends CustomPainter {
+  _IntroGlowPainter({required this.color});
 
-  final double progress;
-  final double time;
-  final List<Color> palette;
-  final Color glowColor;
+  final Color color;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final Rect bounds = Offset.zero & size;
-    final Paint background = Paint()
-      ..shader = RadialGradient(
-        center: Alignment.center,
-        radius: 1.05,
-        colors: [
-          glowColor.withValues(alpha: 0.35 + progress * 0.15),
-          Colors.black.withValues(alpha: 0.7),
-        ],
-        stops: const [0.0, 1.0],
-      ).createShader(bounds);
-    canvas.drawRect(bounds, background);
-
-    final Offset center = bounds.center;
-    final double baseRadius = size.shortestSide * (0.18 + progress * 0.22);
-
-    for (int i = 0; i < 8; i++) {
-      final double angle = time * (0.5 + i * 0.05) + (i / 8) * math.pi * 2;
-      final double distance = baseRadius * (1.8 + i * 0.24 + progress * 1.4);
-      final Offset offset = Offset(
-        math.cos(angle) * distance,
-        math.sin(angle) * distance,
-      );
-      final double petalLength =
-          size.shortestSide * (0.18 + i * 0.02) * (1 + progress * 0.6);
-      final double petalWidth = petalLength * 0.45;
-
-      canvas.save();
-      canvas.translate(center.dx + offset.dx, center.dy + offset.dy);
-      final double rotation =
-          angle + math.sin(time * 0.8 + i) * (1 - progress) * 0.6;
-      canvas.rotate(rotation);
-
-      final Rect petalRect = Rect.fromCenter(
-        center: Offset.zero,
-        width: petalWidth,
-        height: petalLength,
-      );
-      final RRect petalShape = RRect.fromRectAndRadius(
-        petalRect,
-        Radius.circular(petalWidth * 0.5),
-      );
-      final Color baseColor = palette[i % palette.length];
-      final Paint petalPaint = Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.bottomCenter,
-          end: Alignment.topCenter,
-          colors: [
-            baseColor.withValues(alpha: 0.18 + progress * 0.32),
-            baseColor.withValues(alpha: 0.78),
-          ],
-        ).createShader(petalRect);
-      canvas.drawRRect(petalShape, petalPaint);
-      canvas.restore();
-    }
-
-    const int sparkleCount = 28;
-    for (int i = 0; i < sparkleCount; i++) {
-      final double angle = time * 0.9 + (i / sparkleCount) * math.pi * 2;
-      final double orbit = baseRadius * (1.4 + (i % 6) * 0.26 + progress * 1.2);
-      final Offset sparkleOffset =
-          center + Offset(math.cos(angle) * orbit, math.sin(angle) * orbit);
-      final double sparkleWave = (math.sin(time * 1.6 + i) + 1) / 2;
-      final double sparkleSize =
-          size.shortestSide *
-          0.007 *
-          (1.2 + sparkleWave * 1.4) *
-          (1 - progress * 0.25);
-      final Paint sparklePaint = Paint()
-        ..color = Colors.white.withValues(alpha: 0.12 + sparkleWave * 0.36);
-      canvas.drawCircle(sparkleOffset, sparkleSize, sparklePaint);
-    }
-
-    final double coreRadius = baseRadius * (1.1 + progress * 0.9);
-    final Rect coreBounds = Rect.fromCircle(center: center, radius: coreRadius);
-    final Paint corePaint = Paint()
-      ..shader = RadialGradient(
-        colors: [
-          Colors.white.withValues(alpha: 0.9),
-          glowColor.withValues(alpha: 0.0),
-        ],
-      ).createShader(coreBounds);
-    canvas.drawCircle(center, coreRadius, corePaint);
+    final Paint paint = Paint()
+      ..shader =
+          RadialGradient(
+            colors: [color.withValues(alpha: 0.35), Colors.transparent],
+          ).createShader(
+            Rect.fromCircle(
+              center: Offset(size.width * 0.5, size.height * 0.4),
+              radius: size.shortestSide * 0.65,
+            ),
+          );
+    canvas.drawRect(Offset.zero & size, paint);
   }
 
   @override
-  bool shouldRepaint(covariant _BloomPainter oldDelegate) {
-    return oldDelegate.progress != progress ||
-        oldDelegate.time != time ||
-        oldDelegate.glowColor != glowColor ||
-        !listEquals(oldDelegate.palette, palette);
-  }
+  bool shouldRepaint(covariant _IntroGlowPainter oldDelegate) =>
+      oldDelegate.color != color;
 }
 
 class _CountdownSection extends StatelessWidget {
@@ -1256,10 +1163,17 @@ class _CountdownSection extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            strings.countdownTitle,
-            style: theme.textTheme.headlineMedium?.copyWith(
-              color: headlineColor,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withValues(alpha: 0.22),
+              borderRadius: BorderRadius.circular(22),
+            ),
+            child: Text(
+              strings.countdownTitle,
+              style: theme.textTheme.headlineMedium?.copyWith(
+                color: theme.colorScheme.onPrimary,
+              ),
             ),
           ),
           const SizedBox(height: 8),
@@ -1489,10 +1403,22 @@ class SectionCard extends StatelessWidget {
               Icon(icon, color: theme.colorScheme.primary),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  title,
-                  style: theme.textTheme.headlineMedium,
-                  softWrap: true,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.22),
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: Text(
+                    title,
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      color: theme.colorScheme.onPrimary,
+                    ),
+                    softWrap: true,
+                  ),
                 ),
               ),
             ],
@@ -1657,6 +1583,7 @@ class WeddingDetails {
 class LocaleStrings {
   const LocaleStrings({
     required this.heroTagline,
+    required this.scrollPromptLabel,
     required this.celebrationDate,
     required this.countdownTitle,
     required this.countdownSubtitle,
@@ -1684,13 +1611,12 @@ class LocaleStrings {
     required this.whatsappMessage,
     required this.dressCodeLabel,
     required this.dressCode,
-    required this.registryLabel,
-    required this.registryNote,
     required this.footerMessage,
     required this.linkErrorMessage,
   });
 
   final String heroTagline;
+  final String scrollPromptLabel;
   final String celebrationDate;
   final String countdownTitle;
   final String countdownSubtitle;
@@ -1718,8 +1644,6 @@ class LocaleStrings {
   final String whatsappMessage;
   final String dressCodeLabel;
   final String dressCode;
-  final String registryLabel;
-  final String registryNote;
   final String footerMessage;
   final String linkErrorMessage;
 }
