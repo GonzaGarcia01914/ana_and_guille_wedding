@@ -657,14 +657,7 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                 ),
               ),
             ),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 600),
-            switchInCurve: Curves.easeOut,
-            switchOutCurve: Curves.easeIn,
-            child: _isLoading
-                ? const Positioned.fill(child: _LoadingOverlay())
-                : const SizedBox.shrink(),
-          ),
+          if (_isLoading) const Positioned.fill(child: _LoadingOverlay()),
         ],
       ),
     );
