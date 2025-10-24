@@ -1,0 +1,34 @@
+  final String heroTagline;
+  final String scrollPromptLabel;
+  final String celebrationDate;
+  final String countdownTitle;
+  final String countdownSubtitle;
+  final String countdownLeadLabel;
+  final String countdownTargetLabel;
+  final String daysLabel;
+  final String hoursLabel;
+  final String minutesLabel;
+  final String secondsLabel;
+  final List<String> storyLines;
+  final String storyInvite;
+  final String locationTitle;
+  final String venueName;
+  final String locationSummary;
+  final String fullAddress;
+  final String locationButtonLabel;
+  final String calendarButtonLabel;
+  final String calendarTitle;
+  final String calendarDescription;
+  final String rsvpTitle;
+  final String rsvpDateLimit;
+  final String emailButtonLabel;
+  final String whatsappButtonLabel;
+  final String emailSubject;
+  final String whatsappMessage;
+  final String dressCodeLabel;
+  final String dressCode;
+  final String footerMessage;
+  final String linkErrorMessage;
+}
+
+enum InvitationLocale { es, fr }

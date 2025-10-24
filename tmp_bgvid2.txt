@@ -1,0 +1,147 @@
+        html.document.onKeyDown.listen(_handleUserInteractionUnlock),
+      );
+    }
+
+    _applyMuteState();
+    _applyAudioStartPosition(force: true);
+    unawaited(audioElement.play());
+  }
+
+  void _updateAudioSource() {
+    final audioUrl = widget.audioUrl;
+    if (audioUrl == null || audioUrl.isEmpty) {
+      _disposeAudioElement();
+      return;
+    }
+    final String? newSource = _resolveMediaUrl(audioUrl);
+    if (_audioElement == null) {
+      _initializeAudioElement(audioUrl);
+      return;
+    }
+    if (newSource == _resolvedAudioUrl) {
+      _applyAudioStartPosition(force: true);
+      _applyMuteState();
+      return;
+    }
+    _resolvedAudioUrl = newSource;
+    _audioStartApplied = false;
+    _audioElement!
+      ..pause()
+      ..src = _resolvedAudioUrl ?? audioUrl;
+    _audioElement!.load();
+    _updateAudioPlaybackMode();
+    _applyMuteState();
+    _applyAudioStartPosition(force: true);
+    unawaited(_audioElement!.play());
+  }
+
+  void _disposeAudioElement() {
+    _audioCanPlaySubscription?.cancel();
+    _audioCanPlaySubscription = null;
+    _audioErrorSubscription?.cancel();
+    _audioErrorSubscription = null;
+    _audioPlayingSubscription?.cancel();
+    _audioPlayingSubscription = null;
+    _audioEndedSubscription?.cancel();
+    _audioEndedSubscription = null;
+    if (_audioElement != null) {
+      _audioElement!
+        ..pause()
+        ..removeAttribute('src')
+        ..load();
+      _audioElement!.remove();
+      _audioElement = null;
+      _resolvedAudioUrl = null;
+    }
+    for (final subscription in _userInteractionSubscriptions) {
+      subscription.cancel();
+    }
+    _userInteractionSubscriptions.clear();
+    _audioMetadataSubscription?.cancel();
+    _audioMetadataSubscription = null;
+  }
+
+  void _handleUserInteractionUnlock(html.Event _) {
+    final audioElement = _audioElement;
+    if (audioElement == null || !audioElement.paused) {
+      return;
+    }
+    audioElement.play().catchError((Object error, StackTrace _) {
+      debugPrint('Background audio play blocked: $error');
+    });
+  }
+
+  void _applyAudioStartPosition({bool force = false}) {
+    final audioElement = _audioElement;
+    if (audioElement == null) {
+      return;
+    }
+    final target = widget.audioStartPosition;
+    if (target <= 0) {
+      _audioStartApplied = true;
+      return;
+    }
+    if (!force && _audioStartApplied) {
+      if ((audioElement.currentTime - target).abs() <= 0.1) {
+        return;
+      }
+    }
+    if (audioElement.readyState < html.MediaElement.HAVE_METADATA) {
+      return;
+    }
+    try {
+      audioElement.currentTime = target;
+      _audioStartApplied = true;
+    } catch (error, stackTrace) {
+      debugPrint('Background audio seek failed: $error');
+      debugPrint(stackTrace.toString());
+    }
+  }
+
+  void _applyMuteState() {
+    final audioElement = _audioElement;
+    if (audioElement == null) {
+      return;
+    }
+    audioElement.muted = widget.audioMuted;
+    audioElement.volume = widget.audioMuted ? 0 : _defaultAudioVolume;
+    if (!widget.audioMuted && audioElement.paused) {
+      unawaited(audioElement.play());
+    }
+  }
+
+  void _attachAudioEndHandler() {
+    _audioEndedSubscription?.cancel();
+    _audioEndedSubscription = null;
+    if (widget.audioStartPosition <= 0) {
+      return;
+    }
+    final audioElement = _audioElement;
+    if (audioElement == null) {
+      return;
+    }
+    _audioEndedSubscription = audioElement.onEnded.listen((_) {
+      _audioStartApplied = false;
+      _applyAudioStartPosition(force: true);
+      _applyMuteState();
+      unawaited(audioElement.play());
+    });
+  }
+
+  void _updateAudioPlaybackMode() {
+    final audioElement = _audioElement;
+    if (audioElement == null) {
+      return;
+    }
+    final bool shouldLoop = widget.audioStartPosition <= 0;
+    audioElement.loop = shouldLoop;
+    if (shouldLoop) {
+      _audioEndedSubscription?.cancel();
+      _audioEndedSubscription = null;
+      _audioStartApplied = true;
+    } else {
+      _attachAudioEndHandler();
+      _audioStartApplied = false;
+    }
+  }
+}

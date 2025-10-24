@@ -1,0 +1,500 @@
+                                  _WelcomeSection(
+                                    details: details,
+                                    strings: strings,
+                                  ),
+                                  const SizedBox(height: 28),
+                                  SectionCard(
+                                    title: strings.locationTitle,
+                                    icon: Icons.place_outlined,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          strings.venueName,
+                                          style: theme.textTheme.headlineSmall,
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          strings.locationSummary,
+                                          style: theme.textTheme.bodyMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                                color:
+                                                    theme.colorScheme.primary,
+                                              ),
+                                        ),
+                                        const SizedBox(height: 18),
+                                        Wrap(
+                                          spacing: 16,
+                                          runSpacing: 16,
+                                          children: [
+                                            ElevatedButton.icon(
+                                              onPressed: () => _openLink(
+                                                context,
+                                                details.mapUrl,
+                                                strings.linkErrorMessage,
+                                              ),
+                                              icon: const Icon(
+                                                Icons.map_outlined,
+                                              ),
+                                              label: Text(
+                                                strings.locationButtonLabel,
+                                              ),
+                                            ),
+                                            TextButton.icon(
+                                              onPressed: () => _openLink(
+                                                context,
+                                                calendarUrl,
+                                                strings.linkErrorMessage,
+                                              ),
+                                              icon: const Icon(
+                                                Icons.event_available_outlined,
+                                              ),
+                                              label: Text(
+                                                strings.calendarButtonLabel,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 28),
+                                  SectionCard(
+                                    title: strings.rsvpTitle,
+                                    icon: Icons.mark_email_read_outlined,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Wrap(
+                                          spacing: 16,
+                                          runSpacing: 16,
+                                          children: [
+                                            ElevatedButton.icon(
+                                              onPressed: () => _openLink(
+                                                context,
+                                                whatsappUrl,
+                                                strings.linkErrorMessage,
+                                              ),
+                                              style: ElevatedButton.styleFrom(
+                                                elevation: 0,
+                                              ),
+                                              icon: const Icon(
+                                                Icons.chat_bubble_outline,
+                                              ),
+                                              label: Text(
+                                                strings.whatsappButtonLabel,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 24),
+                                        _InfoRow(
+                                          icon: Icons.style_outlined,
+                                          label: strings.dressCodeLabel,
+                                          value: strings.dressCode,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 28),
+                                  _CountdownSection(
+                                    countdown: _countdownNotifier,
+                                    strings: strings,
+                                  ),
+                                  const SizedBox(height: 28),
+                                  _Footer(details: details, strings: strings),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 24,
+                    right: isWide ? 32 : 16,
+                    child: SafeArea(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _MuteToggleButton(
+                            isMuted: _isAudioMuted,
+                            onPressed: _toggleAudioMute,
+                          ),
+                          const SizedBox(width: 12),
+                          _LanguageToggle(
+                            selected: _locale,
+                            onChanged: _switchLocale,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (!_introDismissed)
+            Positioned.fill(
+              child: AnimatedOpacity(
+                opacity: _introOpacity,
+                duration: const Duration(milliseconds: 420),
+                curve: Curves.easeInOut,
+                onEnd: () {
+                  if (_introOpacity == 0 && !_introDismissed && mounted) {
+                    setState(() {
+                      _introDismissed = true;
+                    });
+                  }
+                },
+                child: IgnorePointer(
+                  ignoring: _introOpacity == 0,
+                  child: _IntroBloomOverlay(onOpened: _dismissIntroOverlay),
+                ),
+              ),
+            ),
+          if (_isLoading) const Positioned.fill(child: _LoadingOverlay()),
+        ],
+      ),
+    );
+  }
+}
+
+class _HeroOverlay extends StatefulWidget {
+  const _HeroOverlay({
+    required this.onScrollPromptTap,
+    required this.scrollPromptLabel,
+  });
+
+  final VoidCallback onScrollPromptTap;
+  final String scrollPromptLabel;
+
+  @override
+  State<_HeroOverlay> createState() => _HeroOverlayState();
+}
+
+class _HeroOverlayState extends State<_HeroOverlay>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1100),
+  )..repeat(reverse: true);
+
+  late final Animation<double> _offset = Tween<double>(
+    begin: -3.5,
+    end: 3.5,
+  ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOutSine));
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isWide = MediaQuery.of(context).size.width >= 720;
+    final double horizontalPadding = isWide ? 26 : 22;
+    final double verticalPadding = isWide ? 14 : 12;
+    const Color buttonColor = Color(0xFFD64545);
+
+    return Column(
+      children: [
+        const Spacer(),
+        AnimatedBuilder(
+          animation: _offset,
+          builder: (context, child) {
+            return Transform.translate(
+              offset: Offset(0, _offset.value),
+              child: child,
+            );
+          },
+          child: ElevatedButton.icon(
+            onPressed: widget.onScrollPromptTap,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: buttonColor,
+              foregroundColor: Colors.white,
+              elevation: 6,
+              shadowColor: Colors.black.withValues(alpha: 0.28),
+              padding: EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
+                vertical: verticalPadding,
+              ),
+              shape: const StadiumBorder(),
+            ),
+            icon: const Icon(Icons.south_rounded),
+            label: Text(
+              widget.scrollPromptLabel,
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.8,
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: isWide ? 26 : 16),
+      ],
+    );
+  }
+}
+
+class _LoadingOverlay extends StatelessWidget {
+  const _LoadingOverlay();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bool isWide = MediaQuery.of(context).size.width >= 640;
+    final TextStyle? titleStyle = theme.textTheme.displaySmall?.copyWith(
+      color: Colors.white,
+      letterSpacing: isWide ? 1.4 : 1.1,
+      fontSize: isWide ? 48 : 36,
+      shadows: const [Shadow(color: Colors.black45, blurRadius: 18)],
+    );
+    final TextStyle? subtitleStyle = theme.textTheme.bodyLarge?.copyWith(
+      color: Colors.white.withValues(alpha: 0.82),
+      letterSpacing: 0.6,
+    );
+    return IgnorePointer(
+      ignoring: true,
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF2F3C35), Color(0xFF4F6F5B)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.15),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.35),
+                    width: 1.6,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.18),
+                      blurRadius: 26,
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.favorite,
+                  size: isWide ? 34 : 28,
+                  color: theme.colorScheme.tertiary,
+                ),
+              ),
+              const SizedBox(height: 26),
+              Text('Ana & Guilhem', style: titleStyle),
+              const SizedBox(height: 14),
+              Text('Preparando la magia...', style: subtitleStyle),
+              const SizedBox(height: 26),
+              SizedBox(
+                height: 26,
+                width: 26,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    theme.colorScheme.tertiary,
+                  ),
+                  backgroundColor: Colors.white.withValues(alpha: 0.28),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LanguageToggle extends StatelessWidget {
+  const _LanguageToggle({required this.selected, required this.onChanged});
+
+  final InvitationLocale selected;
+  final ValueChanged<InvitationLocale> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SegmentedButton<InvitationLocale>(
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? Colors.white.withValues(alpha: 0.98)
+              : Colors.white.withValues(alpha: 0.6),
+        ),
+        foregroundColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? const Color(0xFF2F3C35)
+              : Colors.white,
+        ),
+        side: WidgetStateProperty.resolveWith(
+          (states) => BorderSide(
+            color: Colors.white.withValues(
+              alpha: states.contains(WidgetState.selected) ? 0.85 : 0.6,
+            ),
+          ),
+        ),
+        padding: WidgetStateProperty.all(
+          const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        ),
+      ),
+      segments: const [
+        ButtonSegment<InvitationLocale>(
+          value: InvitationLocale.es,
+          label: Text('🇪🇸', style: TextStyle(fontSize: 16)),
+        ),
+        ButtonSegment<InvitationLocale>(
+          value: InvitationLocale.fr,
+          label: Text('🇫🇷', style: TextStyle(fontSize: 16)),
+        ),
+      ],
+      showSelectedIcon: false,
+      selected: {selected},
+      onSelectionChanged: (values) {
+        if (values.isNotEmpty) {
+          onChanged(values.first);
+        }
+      },
+    );
+  }
+}
+
+class _MuteToggleButton extends StatelessWidget {
+  const _MuteToggleButton({required this.isMuted, required this.onPressed});
+
+  final bool isMuted;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color background = Colors.white.withValues(alpha: 0.65);
+    final Color hoverBackground = Colors.white.withValues(alpha: 0.85);
+    return Tooltip(
+      message: isMuted ? 'Activar sonido' : 'Silenciar sonido',
+      child: IconButton(
+        onPressed: onPressed,
+        icon: Icon(
+          isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+        ),
+        style: IconButton.styleFrom(
+          backgroundColor: background,
+          foregroundColor: Colors.white,
+          hoverColor: hoverBackground,
+          focusColor: hoverBackground,
+          highlightColor: hoverBackground,
+          padding: const EdgeInsets.all(10),
+          shape: const StadiumBorder(),
+        ),
+      ),
+    );
+  }
+}
+
+class _IntroBloomOverlay extends StatefulWidget {
+  const _IntroBloomOverlay({required this.onOpened});
+
+  final VoidCallback onOpened;
+
+  @override
+  State<_IntroBloomOverlay> createState() => _IntroBloomOverlayState();
+}
+
+class _IntroBloomOverlayState extends State<_IntroBloomOverlay>
+    with SingleTickerProviderStateMixin {
+  bool _hasTapped = false;
+  late final AnimationController _pulseController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 2200),
+  )..repeat(reverse: true);
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  void _handleTap() {
+    if (_hasTapped) {
+      return;
+    }
+    setState(() {
+      _hasTapped = true;
+    });
+    Future.delayed(const Duration(milliseconds: 680), () {
+      if (mounted) {
+        widget.onOpened();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final size = MediaQuery.of(context).size;
+    final bool isWide = size.shortestSide >= 560;
+    final bool isCompact = size.shortestSide <= 360;
+    final TextStyle? titleStyle = theme.textTheme.displaySmall?.copyWith(
+      color: Colors.white,
+      letterSpacing: isWide ? 1.6 : 1.2,
+      fontSize: isWide ? 54 : 38,
+      shadows: const [Shadow(color: Colors.black45, blurRadius: 18)],
+    );
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _hasTapped ? null : _handleTap,
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF2F3C35), Color(0xFF4F6F5B)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: CustomPaint(
+                painter: _IntroGlowPainter(color: theme.colorScheme.tertiary),
+              ),
+            ),
+            Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: isCompact ? 28 : 48),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AnimatedBuilder(
+                      animation: _pulseController,
+                      builder: (context, child) {
+                        final scale =
+                            1 +
+                            (_hasTapped ? 0.04 : 0.08) *
+                                math.sin(_pulseController.value * math.pi * 2);
+                        return Transform.scale(scale: scale, child: child);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(isWide ? 24 : 18),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.18),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.35),
+                            width: 1.6,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.2),
+                              blurRadius: 24,

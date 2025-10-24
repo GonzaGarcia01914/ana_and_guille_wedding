@@ -1,0 +1,600 @@
+              Text('Preparando la magia...', style: subtitleStyle),
+              const SizedBox(height: 26),
+              SizedBox(
+                height: 26,
+                width: 26,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    theme.colorScheme.tertiary,
+                  ),
+                  backgroundColor: Colors.white.withValues(alpha: 0.28),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LanguageToggle extends StatelessWidget {
+  const _LanguageToggle({required this.selected, required this.onChanged});
+
+  final InvitationLocale selected;
+  final ValueChanged<InvitationLocale> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SegmentedButton<InvitationLocale>(
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? Colors.white.withValues(alpha: 0.98)
+              : Colors.white.withValues(alpha: 0.6),
+        ),
+        foregroundColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? const Color(0xFF2F3C35)
+              : Colors.white,
+        ),
+        side: WidgetStateProperty.resolveWith(
+          (states) => BorderSide(
+            color: Colors.white.withValues(
+              alpha: states.contains(WidgetState.selected) ? 0.85 : 0.6,
+            ),
+          ),
+        ),
+        padding: WidgetStateProperty.all(
+          const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        ),
+      ),
+      segments: const [
+        ButtonSegment<InvitationLocale>(
+          value: InvitationLocale.es,
+          label: Text('🇪🇸', style: TextStyle(fontSize: 16)),
+        ),
+        ButtonSegment<InvitationLocale>(
+          value: InvitationLocale.fr,
+          label: Text('🇫🇷', style: TextStyle(fontSize: 16)),
+        ),
+      ],
+      showSelectedIcon: false,
+      selected: {selected},
+      onSelectionChanged: (values) {
+        if (values.isNotEmpty) {
+          onChanged(values.first);
+        }
+      },
+    );
+  }
+}
+
+class _MuteToggleButton extends StatelessWidget {
+  const _MuteToggleButton({required this.isMuted, required this.onPressed});
+
+  final bool isMuted;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color background = Colors.white.withValues(alpha: 0.65);
+    final Color hoverBackground = Colors.white.withValues(alpha: 0.85);
+    return Tooltip(
+      message: isMuted ? 'Activar sonido' : 'Silenciar sonido',
+      child: IconButton(
+        onPressed: onPressed,
+        icon: Icon(
+          isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+        ),
+        style: IconButton.styleFrom(
+          backgroundColor: background,
+          foregroundColor: Colors.white,
+          hoverColor: hoverBackground,
+          focusColor: hoverBackground,
+          highlightColor: hoverBackground,
+          padding: const EdgeInsets.all(10),
+          shape: const StadiumBorder(),
+        ),
+      ),
+    );
+  }
+}
+
+class _IntroBloomOverlay extends StatefulWidget {
+  const _IntroBloomOverlay({required this.onOpened});
+
+  final VoidCallback onOpened;
+
+  @override
+  State<_IntroBloomOverlay> createState() => _IntroBloomOverlayState();
+}
+
+class _IntroBloomOverlayState extends State<_IntroBloomOverlay>
+    with SingleTickerProviderStateMixin {
+  bool _hasTapped = false;
+  late final AnimationController _pulseController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 2200),
+  )..repeat(reverse: true);
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  void _handleTap() {
+    if (_hasTapped) {
+      return;
+    }
+    setState(() {
+      _hasTapped = true;
+    });
+    Future.delayed(const Duration(milliseconds: 680), () {
+      if (mounted) {
+        widget.onOpened();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final size = MediaQuery.of(context).size;
+    final bool isWide = size.shortestSide >= 560;
+    final bool isCompact = size.shortestSide <= 360;
+    final TextStyle? titleStyle = theme.textTheme.displaySmall?.copyWith(
+      color: Colors.white,
+      letterSpacing: isWide ? 1.6 : 1.2,
+      fontSize: isWide ? 54 : 38,
+      shadows: const [Shadow(color: Colors.black45, blurRadius: 18)],
+    );
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _hasTapped ? null : _handleTap,
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF2F3C35), Color(0xFF4F6F5B)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: CustomPaint(
+                painter: _IntroGlowPainter(color: theme.colorScheme.tertiary),
+              ),
+            ),
+            Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: isCompact ? 28 : 48),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AnimatedBuilder(
+                      animation: _pulseController,
+                      builder: (context, child) {
+                        final scale =
+                            1 +
+                            (_hasTapped ? 0.04 : 0.08) *
+                                math.sin(_pulseController.value * math.pi * 2);
+                        return Transform.scale(scale: scale, child: child);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(isWide ? 24 : 18),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.18),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.35),
+                            width: 1.6,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.2),
+                              blurRadius: 24,
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.favorite,
+                          size: isWide ? 40 : 32,
+                          color: theme.colorScheme.tertiary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    Text(
+                      'Ana & Guilhem',
+                      style: titleStyle,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 32),
+                    ElevatedButton.icon(
+                      onPressed: _hasTapped ? null : _handleTap,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFD64545),
+                        foregroundColor: Colors.white,
+                        elevation: 6,
+                        shadowColor: Colors.black.withValues(alpha: 0.28),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isWide ? 38 : 28,
+                          vertical: isWide ? 16 : 14,
+                        ),
+                        shape: const StadiumBorder(),
+                      ),
+                      icon: const Icon(Icons.play_arrow_rounded),
+                      label: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 220),
+                        child: Text(
+                          _hasTapped
+                              ? 'Preparando la magia...'
+                              : 'Toca para abrir',
+                          key: ValueKey(_hasTapped),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _IntroGlowPainter extends CustomPainter {
+  _IntroGlowPainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint paint = Paint()
+      ..shader =
+          RadialGradient(
+            colors: [color.withValues(alpha: 0.35), Colors.transparent],
+          ).createShader(
+            Rect.fromCircle(
+              center: Offset(size.width * 0.5, size.height * 0.4),
+              radius: size.shortestSide * 0.65,
+            ),
+          );
+    canvas.drawRect(Offset.zero & size, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _IntroGlowPainter oldDelegate) =>
+      oldDelegate.color != color;
+}
+
+class _CountdownSection extends StatelessWidget {
+  const _CountdownSection({required this.countdown, required this.strings});
+
+  final ValueListenable<Duration> countdown;
+  final LocaleStrings strings;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final headlineColor = theme.colorScheme.onSurface;
+    final bodyColor = theme.colorScheme.onSurface.withValues(alpha: 0.7);
+
+    return _MinimalCard(
+      padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 30),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withValues(alpha: 0.22),
+              borderRadius: BorderRadius.circular(22),
+            ),
+            child: Text(
+              strings.countdownTitle,
+              style: theme.textTheme.headlineMedium?.copyWith(
+                color: theme.colorScheme.onPrimary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            strings.countdownSubtitle,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(color: bodyColor),
+          ),
+          const SizedBox(height: 24),
+          ValueListenableBuilder<Duration>(
+            valueListenable: countdown,
+            builder: (context, duration, _) {
+              final breakdown = _TimeBreakdown.fromDuration(duration);
+              final width = MediaQuery.of(context).size.width;
+              final bool isNarrow = width < 420;
+              final bool isVeryWide = width > 960;
+              final double itemSpacing = isVeryWide
+                  ? 22
+                  : isNarrow
+                  ? 8
+                  : 14;
+              final double runSpacing = isNarrow ? 4 : 10;
+              return Column(
+                children: [
+                  Text(
+                    strings.countdownLeadLabel.toUpperCase(),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: headlineColor,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: itemSpacing,
+                    runSpacing: runSpacing,
+                    children: [
+                      _CountdownValue(
+                        value: breakdown.days,
+                        label: strings.daysLabel,
+                      ),
+                      _CountdownValue(
+                        value: breakdown.hours,
+                        label: strings.hoursLabel,
+                      ),
+                      _CountdownValue(
+                        value: breakdown.minutes,
+                        label: strings.minutesLabel,
+                      ),
+                      _CountdownValue(
+                        value: breakdown.seconds,
+                        label: strings.secondsLabel,
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CountdownValue extends StatelessWidget {
+  const _CountdownValue({required this.value, required this.label});
+
+  final int value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final mediaQuery = MediaQuery.of(context);
+    final width = mediaQuery.size.width;
+
+    // Tune sizes so the four items always fit in one row.
+    // We assume a minimum padding of ~32 on each side.
+    final bool isNarrow = width < 420;
+    final bool isVeryWide = width > 960;
+
+    final double circleSize = isVeryWide
+        ? 88
+        : isNarrow
+        ? 54
+        : 68;
+    final double fontSize = isVeryWide
+        ? 28
+        : isNarrow
+        ? 18
+        : 24;
+    final double labelSpacing = isVeryWide
+        ? 10
+        : isNarrow
+        ? 6
+        : 8;
+    final double labelFontSize = isVeryWide
+        ? 14
+        : isNarrow
+        ? 11
+        : 12;
+
+    final circleColor = theme.colorScheme.primary.withValues(alpha: 0.78);
+    final valueColor = theme.colorScheme.onPrimary;
+    final labelColor = theme.colorScheme.onSurface.withValues(alpha: 0.75);
+
+    final valueStyle = theme.textTheme.headlineSmall?.copyWith(
+      fontSize: fontSize,
+      fontWeight: FontWeight.w600,
+      color: valueColor,
+    );
+    final labelStyle = theme.textTheme.labelMedium?.copyWith(
+      letterSpacing: 1,
+      fontSize: labelFontSize,
+      color: labelColor,
+    );
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: circleSize,
+          height: circleSize,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(shape: BoxShape.circle, color: circleColor),
+          child: Text(value.toString().padLeft(2, '0'), style: valueStyle),
+        ),
+        SizedBox(height: labelSpacing),
+        Text(label.toUpperCase(), style: labelStyle),
+      ],
+    );
+  }
+}
+
+class _WelcomeSection extends StatelessWidget {
+  const _WelcomeSection({required this.details, required this.strings});
+
+  final WeddingDetails details;
+  final LocaleStrings strings;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final subtitleColor = theme.colorScheme.onSurface.withValues(alpha: 0.72);
+    final isWide = MediaQuery.of(context).size.width >= 720;
+
+    return _MinimalCard(
+      padding: EdgeInsets.symmetric(
+        horizontal: isWide ? 46 : 24,
+        vertical: isWide ? 44 : 30,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            details.coupleNames,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.displaySmall?.copyWith(
+              fontSize: isWide ? 60 : 42,
+              color: textColor,
+            ),
+          ),
+          SizedBox(height: isWide ? 32 : 26),
+          for (int i = 0; i < strings.storyLines.length; i++) ...[
+            Text(
+              strings.storyLines[i],
+              textAlign: TextAlign.center,
+              style: theme.textTheme.displaySmall?.copyWith(
+                fontSize: isWide ? 28 : 22,
+                height: 1.35,
+                color: textColor,
+              ),
+            ),
+            if (i != strings.storyLines.length - 1) const SizedBox(height: 6),
+          ],
+          SizedBox(height: isWide ? 22 : 18),
+          Text(
+            strings.storyInvite,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: subtitleColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: isWide ? 24 : 18),
+          Text(
+            strings.celebrationDate,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: subtitleColor,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SectionCard extends StatelessWidget {
+  const SectionCard({
+    super.key,
+    required this.title,
+    required this.icon,
+    required this.child,
+  });
+
+  final String title;
+  final IconData icon;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return _MinimalCard(
+      padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 26),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(icon, color: theme.colorScheme.primary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.22),
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: Text(
+                    title,
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      color: theme.colorScheme.onPrimary,
+                    ),
+                    softWrap: true,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+class _MinimalCard extends StatelessWidget {
+  const _MinimalCard({
+    required this.child,
+    this.padding = const EdgeInsets.all(24),
+  });
+
+  final Widget child;
+  final EdgeInsets padding;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: theme.colorScheme.primary.withValues(alpha: 0.18),
+        ),
+      ),
+      child: child,
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;

@@ -227,10 +227,10 @@ class WeddingInvitationPage extends StatefulWidget {
         calendarTitle: 'Boda',
         calendarDescription:
             'Celebramos nuestra boda en Le Chat, Monoblet. \u00a1Te esperamos para brindar juntos!',
-        rsvpTitle: 'Confirmar asistencia',
+        rsvpTitle: 'Confirmar Asistencia',
         rsvpDateLimit: '',
         emailButtonLabel: 'Enviar correo',
-        whatsappButtonLabel: 'WhatsApp con Guille',
+        whatsappButtonLabel: 'WhatsApp',
         emailSubject: 'Confirmaci\u00f3n de asistencia',
         whatsappMessage:
             'Hola Guille, quiero confirmar mi asistencia a la boda de Ana y Guilhem.',
@@ -272,7 +272,7 @@ class WeddingInvitationPage extends StatefulWidget {
         rsvpTitle: 'Confirmer ta pr\u00e9sence',
         rsvpDateLimit: '',
         emailButtonLabel: 'Envoyer un e-mail',
-        whatsappButtonLabel: 'WhatsApp avec Guille',
+        whatsappButtonLabel: 'WhatsApp',
         emailSubject: 'Confirmation de pr\u00e9sence',
         whatsappMessage:
             "Bonjour Guille ! Je souhaite confirmer ma pr\u00e9sence au mariage d'Ana et Guilhem.",
@@ -591,10 +591,48 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                           ],
                                         ),
                                         const SizedBox(height: 24),
-                                        _InfoRow(
-                                          icon: Icons.style_outlined,
-                                          label: strings.dressCodeLabel,
-                                          value: strings.dressCode,
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.style_outlined,
+                                              color: theme.colorScheme.primary,
+                                            ),
+                                            const SizedBox(width: 12),
+                                            Expanded(
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 18,
+                                                  vertical: 10,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: theme.colorScheme
+                                                      .primary
+                                                      .withValues(alpha: 0.22),
+                                                  borderRadius:
+                                                      BorderRadius.circular(22),
+                                                ),
+                                                child: Text(
+                                                  strings.dressCodeLabel,
+                                                  style: theme
+                                                      .textTheme
+                                                      .headlineMedium
+                                                      ?.copyWith(
+                                                    color: theme
+                                                        .colorScheme
+                                                        .onPrimary,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          strings.dressCode,
+                                          style: theme.textTheme.bodyMedium,
                                         ),
                                       ],
                                     ),
@@ -1102,10 +1140,15 @@ class _CountdownSection extends StatelessWidget {
               color: theme.colorScheme.primary.withValues(alpha: 0.22),
               borderRadius: BorderRadius.circular(22),
             ),
-            child: Text(
-              strings.countdownTitle,
-              style: theme.textTheme.headlineMedium?.copyWith(
-                color: theme.colorScheme.onPrimary,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                strings.countdownTitle,
+                softWrap: false,
+                maxLines: 1,
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  color: theme.colorScheme.onPrimary,
+                ),
               ),
             ),
           ),
@@ -1437,20 +1480,27 @@ class _Footer extends StatelessWidget {
       children: [
         Divider(color: theme.colorScheme.outlineVariant),
         const SizedBox(height: 24),
-        Text(
-          strings.footerMessage,
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodyLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: theme.colorScheme.onSurface,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primary.withValues(alpha: 0.22),
+            borderRadius: BorderRadius.circular(22),
+          ),
+          child: Text(
+            strings.footerMessage,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              color: theme.colorScheme.onPrimary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         Text(
           details.coupleNames,
           textAlign: TextAlign.center,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
+          style: theme.textTheme.headlineSmall?.copyWith(
+            color: theme.colorScheme.onSurface,
             letterSpacing: 0.8,
           ),
         ),

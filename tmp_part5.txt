@@ -1,0 +1,434 @@
+                      _CountdownValue(
+                        value: breakdown.hours,
+                        label: strings.hoursLabel,
+                      ),
+                      _CountdownValue(
+                        value: breakdown.minutes,
+                        label: strings.minutesLabel,
+                      ),
+                      _CountdownValue(
+                        value: breakdown.seconds,
+                        label: strings.secondsLabel,
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CountdownValue extends StatelessWidget {
+  const _CountdownValue({required this.value, required this.label});
+
+  final int value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final mediaQuery = MediaQuery.of(context);
+    final width = mediaQuery.size.width;
+
+    // Tune sizes so the four items always fit in one row.
+    // We assume a minimum padding of ~32 on each side.
+    final bool isNarrow = width < 420;
+    final bool isVeryWide = width > 960;
+
+    final double circleSize = isVeryWide
+        ? 88
+        : isNarrow
+        ? 54
+        : 68;
+    final double fontSize = isVeryWide
+        ? 28
+        : isNarrow
+        ? 18
+        : 24;
+    final double labelSpacing = isVeryWide
+        ? 10
+        : isNarrow
+        ? 6
+        : 8;
+    final double labelFontSize = isVeryWide
+        ? 14
+        : isNarrow
+        ? 11
+        : 12;
+
+    final circleColor = theme.colorScheme.primary.withValues(alpha: 0.78);
+    final valueColor = theme.colorScheme.onPrimary;
+    final labelColor = theme.colorScheme.onSurface.withValues(alpha: 0.75);
+
+    final valueStyle = theme.textTheme.headlineSmall?.copyWith(
+      fontSize: fontSize,
+      fontWeight: FontWeight.w600,
+      color: valueColor,
+    );
+    final labelStyle = theme.textTheme.labelMedium?.copyWith(
+      letterSpacing: 1,
+      fontSize: labelFontSize,
+      color: labelColor,
+    );
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: circleSize,
+          height: circleSize,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(shape: BoxShape.circle, color: circleColor),
+          child: Text(value.toString().padLeft(2, '0'), style: valueStyle),
+        ),
+        SizedBox(height: labelSpacing),
+        Text(label.toUpperCase(), style: labelStyle),
+      ],
+    );
+  }
+}
+
+class _WelcomeSection extends StatelessWidget {
+  const _WelcomeSection({required this.details, required this.strings});
+
+  final WeddingDetails details;
+  final LocaleStrings strings;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final subtitleColor = theme.colorScheme.onSurface.withValues(alpha: 0.72);
+    final isWide = MediaQuery.of(context).size.width >= 720;
+
+    return _MinimalCard(
+      padding: EdgeInsets.symmetric(
+        horizontal: isWide ? 46 : 24,
+        vertical: isWide ? 44 : 30,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            details.coupleNames,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.displaySmall?.copyWith(
+              fontSize: isWide ? 60 : 42,
+              color: textColor,
+            ),
+          ),
+          SizedBox(height: isWide ? 32 : 26),
+          for (int i = 0; i < strings.storyLines.length; i++) ...[
+            Text(
+              strings.storyLines[i],
+              textAlign: TextAlign.center,
+              style: theme.textTheme.displaySmall?.copyWith(
+                fontSize: isWide ? 28 : 22,
+                height: 1.35,
+                color: textColor,
+              ),
+            ),
+            if (i != strings.storyLines.length - 1) const SizedBox(height: 6),
+          ],
+          SizedBox(height: isWide ? 22 : 18),
+          Text(
+            strings.storyInvite,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: subtitleColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: isWide ? 24 : 18),
+          Text(
+            strings.celebrationDate,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: subtitleColor,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SectionCard extends StatelessWidget {
+  const SectionCard({
+    super.key,
+    required this.title,
+    required this.icon,
+    required this.child,
+  });
+
+  final String title;
+  final IconData icon;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return _MinimalCard(
+      padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 26),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(icon, color: theme.colorScheme.primary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.22),
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: Text(
+                    title,
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      color: theme.colorScheme.onPrimary,
+                    ),
+                    softWrap: true,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+class _MinimalCard extends StatelessWidget {
+  const _MinimalCard({
+    required this.child,
+    this.padding = const EdgeInsets.all(24),
+  });
+
+  final Widget child;
+  final EdgeInsets padding;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: theme.colorScheme.primary.withValues(alpha: 0.18),
+        ),
+      ),
+      child: child,
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, color: theme.colorScheme.secondary),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: theme.textTheme.titleMedium),
+              const SizedBox(height: 6),
+              Text(value, style: theme.textTheme.bodyMedium),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Footer extends StatelessWidget {
+  const _Footer({required this.details, required this.strings});
+
+  final WeddingDetails details;
+  final LocaleStrings strings;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      children: [
+        Divider(color: theme.colorScheme.outlineVariant),
+        const SizedBox(height: 24),
+        Text(
+          strings.footerMessage,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodyLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          details.coupleNames,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
+            letterSpacing: 0.8,
+          ),
+        ),
+        const SizedBox(height: 40),
+      ],
+    );
+  }
+}
+
+class _TimeBreakdown {
+  const _TimeBreakdown({
+    required this.days,
+    required this.hours,
+    required this.minutes,
+    required this.seconds,
+  });
+
+  factory _TimeBreakdown.fromDuration(Duration duration) {
+    final totalSeconds = duration.inSeconds;
+    final days = duration.inDays;
+    final hours = (totalSeconds - days * 86400) ~/ 3600;
+    final minutes = (totalSeconds - days * 86400 - hours * 3600) ~/ 60;
+    final seconds = totalSeconds % 60;
+    return _TimeBreakdown(
+      days: days,
+      hours: hours,
+      minutes: minutes,
+      seconds: seconds,
+    );
+  }
+
+  final int days;
+  final int hours;
+  final int minutes;
+  final int seconds;
+}
+
+class WeddingDetails {
+  const WeddingDetails({
+    required this.coupleNames,
+    required this.videoUrl,
+    required this.audioUrl,
+    this.audioStartPosition = 0,
+    required this.mapUrl,
+    required this.rsvpEmail,
+    required this.rsvpPhoneNumber,
+    required this.localized,
+  });
+
+  final String coupleNames;
+  final String videoUrl;
+  final String audioUrl;
+  final double audioStartPosition;
+  final String mapUrl;
+  final String rsvpEmail;
+  final String rsvpPhoneNumber;
+  final Map<InvitationLocale, LocaleStrings> localized;
+
+  LocaleStrings stringsFor(InvitationLocale locale) =>
+      localized[locale] ?? localized.values.first;
+}
+
+class LocaleStrings {
+  const LocaleStrings({
+    required this.heroTagline,
+    required this.scrollPromptLabel,
+    required this.celebrationDate,
+    required this.countdownTitle,
+    required this.countdownSubtitle,
+    required this.countdownLeadLabel,
+    required this.countdownTargetLabel,
+    required this.daysLabel,
+    required this.hoursLabel,
+    required this.minutesLabel,
+    required this.secondsLabel,
+    required this.storyLines,
+    required this.storyInvite,
+    required this.locationTitle,
+    required this.venueName,
+    required this.locationSummary,
+    required this.fullAddress,
+    required this.locationButtonLabel,
+    required this.calendarButtonLabel,
+    required this.calendarTitle,
+    required this.calendarDescription,
+    required this.rsvpTitle,
+    required this.rsvpDateLimit,
+    required this.emailButtonLabel,
+    required this.whatsappButtonLabel,
+    required this.emailSubject,
+    required this.whatsappMessage,
+    required this.dressCodeLabel,
+    required this.dressCode,
+    required this.footerMessage,
+    required this.linkErrorMessage,
+  });
+
+  final String heroTagline;
+  final String scrollPromptLabel;
+  final String celebrationDate;
+  final String countdownTitle;
+  final String countdownSubtitle;
+  final String countdownLeadLabel;
+  final String countdownTargetLabel;
+  final String daysLabel;
+  final String hoursLabel;
+  final String minutesLabel;
+  final String secondsLabel;
+  final List<String> storyLines;
+  final String storyInvite;
+  final String locationTitle;
+  final String venueName;
+  final String locationSummary;
+  final String fullAddress;
+  final String locationButtonLabel;
+  final String calendarButtonLabel;
+  final String calendarTitle;
+  final String calendarDescription;
+  final String rsvpTitle;
+  final String rsvpDateLimit;
+  final String emailButtonLabel;
+  final String whatsappButtonLabel;
+  final String emailSubject;
+  final String whatsappMessage;
+  final String dressCodeLabel;
+  final String dressCode;
+  final String footerMessage;
+  final String linkErrorMessage;
+}
+
+enum InvitationLocale { es, fr }

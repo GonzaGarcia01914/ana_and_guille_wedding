@@ -1,0 +1,250 @@
+        countdownLeadLabel: 'Plus que',
+        countdownTargetLabel: '19 septembre 2026 - Monoblet',
+        daysLabel: 'Jours',
+        hoursLabel: 'Heures',
+        minutesLabel: 'Minutes',
+        secondsLabel: 'Secondes',
+        storyLines: [
+          "Apr\u00e8s dix ans ensemble et tant d'aventures,",
+          'nous avons d\u00e9cid\u00e9 de vivre la plus Sp\u00e9ciale de Toutes.',
+        ],
+        storyInvite:
+            "Cette fois, nous voulons que tu en fasses partie et que tu nous accompagnes !",
+        locationTitle: 'Localisation',
+        venueName: 'Le Chat',
+        locationSummary: 'Monoblet, France',
+        fullAddress: 'Le Chat, Monoblet, France',
+        locationButtonLabel: 'Voir sur Google Maps',
+        calendarButtonLabel: 'Ajouter au calendrier',
+        calendarTitle: 'Mariage',
+        calendarDescription:
+            "Nous c\u00e9l\u00e9brons notre mariage \u00e0 Le Chat, Monoblet. Nous t'attendons pour trinquer ensemble !",
+        rsvpTitle: 'Confirmer ta pr\u00e9sence',
+        rsvpDateLimit: '',
+        emailButtonLabel: 'Envoyer un e-mail',
+        whatsappButtonLabel: 'WhatsApp avec Guille',
+        emailSubject: 'Confirmation de pr\u00e9sence',
+        whatsappMessage:
+            "Bonjour Guille ! Je souhaite confirmer ma pr\u00e9sence au mariage d'Ana et Guilhem.",
+        dressCodeLabel: 'Tenue',
+        dressCode:
+            '\u00c9l\u00e9gant d\u00e9contract\u00e9. Tons neutres, terre et naturels.',
+        footerMessage:
+            'Merci de faire partie de ce moment si sp\u00e9cial pour nous !',
+        linkErrorMessage:
+            "Nous n'avons pas pu ouvrir le lien. Tu peux le copier depuis l'invitation.",
+      ),
+    },
+  );
+
+  @override
+  State<WeddingInvitationPage> createState() => _WeddingInvitationPageState();
+}
+
+class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
+  final ScrollController _scrollController = ScrollController();
+  final DateTime _targetDate = DateTime(2026, 9, 19, 12);
+  late final ValueNotifier<Duration> _countdownNotifier =
+      ValueNotifier<Duration>(_timeRemaining());
+  InvitationLocale _locale = InvitationLocale.es;
+  Timer? _timer;
+  double _scrollOffset = 0;
+  bool _isAudioMuted = true;
+  double _introOpacity = 1.0;
+  bool _introDismissed = false;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_handleScroll);
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      _countdownNotifier.value = _timeRemaining();
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(milliseconds: 1200));
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isLoading = false;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _scrollController
+      ..removeListener(_handleScroll)
+      ..dispose();
+    _countdownNotifier.dispose();
+    super.dispose();
+  }
+
+  void _handleScroll() {
+    setState(() {
+      _scrollOffset = _scrollController.offset;
+    });
+  }
+
+  Duration _timeRemaining() {
+    final now = DateTime.now();
+    if (_targetDate.isBefore(now)) {
+      return Duration.zero;
+    }
+    return _targetDate.difference(now);
+  }
+
+  double get _blurSigma => (_scrollOffset / 45).clamp(0.0, 18.0);
+
+  double get _overlayOpacity => (_scrollOffset / 480).clamp(0.0, 0.65);
+
+  void _switchLocale(InvitationLocale locale) {
+    if (_locale != locale) {
+      setState(() {
+        _locale = locale;
+      });
+    }
+  }
+
+  void _toggleAudioMute() {
+    setState(() {
+      _isAudioMuted = !_isAudioMuted;
+    });
+  }
+
+  void _scrollToContent() {
+    if (!_scrollController.hasClients) {
+      return;
+    }
+    final double heroHeight = MediaQuery.of(context).size.height;
+    _scrollController.animateTo(
+      heroHeight * 0.95,
+      duration: const Duration(milliseconds: 700),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _dismissIntroOverlay() {
+    if (_introDismissed || _introOpacity == 0) {
+      return;
+    }
+    setState(() {
+      _introOpacity = 0;
+      if (_isAudioMuted) {
+        _isAudioMuted = false;
+      }
+    });
+  }
+
+  Future<void> _openLink(
+    BuildContext context,
+    String url,
+    String errorMessage,
+  ) async {
+    final uri = Uri.parse(url);
+    final launched = await launchUrl(uri, mode: LaunchMode.platformDefault);
+    if (!launched) {
+      if (!context.mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(errorMessage)));
+    }
+  }
+
+  String _buildCalendarUrl(WeddingDetails details, LocaleStrings strings) {
+    const start = '20261120T200000Z';
+    const end = '20261121T020000Z';
+    final title = Uri.encodeComponent(
+      '${details.coupleNames} · ${strings.calendarTitle}',
+    );
+    final location = Uri.encodeComponent(strings.fullAddress);
+    final description = Uri.encodeComponent(strings.calendarDescription);
+
+    return 'https://www.google.com/calendar/render?action=TEMPLATE&text=$title&dates=$start/$end&location=$location&details=$description';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final details = WeddingInvitationPage.details;
+    final strings = details.stringsFor(_locale);
+    final theme = Theme.of(context);
+    final size = MediaQuery.of(context).size;
+    final isWide = size.width >= 900;
+    final horizontalPadding = isWide ? 160.0 : 24.0;
+    final heroHeight = size.height;
+
+    final whatsappUrl =
+        'https://wa.me/${details.rsvpPhoneNumber}?text=${Uri.encodeComponent(strings.whatsappMessage)}';
+    final calendarUrl = _buildCalendarUrl(details, strings);
+    final double mainOpacity = _introDismissed
+        ? 1.0
+        : (_introOpacity < 1 ? 1.0 : 0.0);
+
+    return Scaffold(
+      body: Stack(
+        children: [
+          AnimatedOpacity(
+            opacity: mainOpacity,
+            duration: const Duration(milliseconds: 420),
+            curve: Curves.easeInOut,
+            child: IgnorePointer(
+              ignoring: !_introDismissed,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: BackgroundVideo(
+                      videoUrl: details.videoUrl,
+                      audioUrl: details.audioUrl,
+                      audioStartPosition: details.audioStartPosition,
+                      audioMuted: _isAudioMuted,
+                      blurSigma: _blurSigma,
+                      overlayOpacity: _overlayOpacity,
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.black.withValues(alpha: 0.28),
+                            Colors.black.withValues(alpha: 0.1),
+                            Colors.transparent,
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.center,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: isWide ? 80 : 60),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            SizedBox(
+                              height: heroHeight,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: isWide ? 96 : 32,
+                                  vertical: isWide ? 72 : 48,
+                                ),
+                                child: _HeroOverlay(
+                                  scrollPromptLabel: strings.scrollPromptLabel,
+                                  onScrollPromptTap: _scrollToContent,
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: horizontalPadding,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
