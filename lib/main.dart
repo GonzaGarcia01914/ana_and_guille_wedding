@@ -197,7 +197,7 @@ class WeddingInvitationPage extends StatefulWidget {
     audioUrl: 'assets/audio/Philippe_Katerine_-_Louxor_j_adore_recortada.mp3',
     mapUrl: 'https://maps.app.goo.gl/HyyjJ1SwnHrW1MUf9',
     rsvpEmail: 'anakarinagarcia@gmail.com',
-    rsvpPhoneNumber: '595986561861',
+    rsvpPhoneNumber: '595986206905',
     localized: {
       InvitationLocale.es: LocaleStrings(
         heroTagline: '',

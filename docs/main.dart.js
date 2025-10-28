@@ -64052,7 +64052,7 @@ b=c==null?a4:c.yi(r.ax.b,B.ai)
 a=t.D
 b=A.fA(A.c([d,B.vP,A.cs(a5.ay,a4,a4,a4,b,a4),B.vN,A.a4q(B.bB,A.c([A.Sh(B.AM,A.cs(a5.CW,a4,a4,a4,a4,a4),new A.aaP(a3,a6,B.fJ,a5),a4),A.au7(B.AO,A.cs(a5.cx,a4,a4,a4,a4,a4),new A.aaQ(a3,a6,"https://www.google.com/calendar/render?action=TEMPLATE&text="+n+"&dates=20261120T200000Z/20261121T020000Z&location="+m+"&details="+l,a5),a4,a4)],a),16,16)],a),B.b6,B.ap)
 d=A.Si(a4,a4,a4,a4,a4,a4,0,a4,a4,a4,a4,a4,a4,a4,a4,a4,a4,a4,a4,a4)
-d=A.a4q(B.bB,A.c([A.Sh(B.AP,A.cs("WhatsApp",a4,a4,a4,a4,a4),new A.aaR(a3,a6,"https://wa.me/595986561861?text="+s,a5),d)],a),16,16)
+d=A.a4q(B.bB,A.c([A.Sh(B.AP,A.cs("WhatsApp",a4,a4,a4,a4,a4),new A.aaR(a3,a6,"https://wa.me/595986206905?text="+s,a5),d)],a),16,16)
 s=r.ax
 a0=s.b
 a1=A.Dm(B.AD,a0,a4,a4)
