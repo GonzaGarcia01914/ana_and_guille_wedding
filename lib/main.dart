@@ -203,7 +203,7 @@ class WeddingInvitationPage extends StatefulWidget {
     localized: {
       InvitationLocale.es: LocaleStrings(
         heroTagline: '',
-        scrollPromptLabel: 'PUSH\nHERE',
+        scrollPromptLabel: 'Push Here',
         celebrationDate:
             'Te esperamos el s\u00e1bado 19 de septiembre de 2026, a las 12:00 hs.',
         countdownTitle: 'Cuenta regresiva',
@@ -245,7 +245,7 @@ class WeddingInvitationPage extends StatefulWidget {
       ),
       InvitationLocale.fr: LocaleStrings(
         heroTagline: '',
-        scrollPromptLabel: 'PUSH\nHERE',
+        scrollPromptLabel: 'Push Here',
         celebrationDate:
             "Nous t'attendons le samedi 19 septembre 2026 \u00e0 12h00 \u00e0 Monoblet.",
         countdownTitle: 'Compte \u00e0 rebours',
@@ -759,6 +759,8 @@ class _HeroOverlayState extends State<_HeroOverlay>
   @override
   Widget build(BuildContext context) {
     final bool isWide = MediaQuery.of(context).size.width >= 720;
+    final double horizontalPadding = isWide ? 26 : 22;
+    final double verticalPadding = isWide ? 14 : 12;
     const Color buttonColor = Color(0xFFD64545);
 
     return Column(
@@ -772,28 +774,25 @@ class _HeroOverlayState extends State<_HeroOverlay>
               child: child,
             );
           },
-          child: SizedBox(
-            width: isWide ? 116 : 102,
-            height: isWide ? 116 : 102,
-            child: ElevatedButton(
-              onPressed: widget.onScrollPromptTap,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: buttonColor,
-                foregroundColor: Colors.white,
-                elevation: 6,
-                shadowColor: Colors.black.withValues(alpha: 0.28),
-                shape: const CircleBorder(),
-                padding: EdgeInsets.zero,
+          child: ElevatedButton.icon(
+            onPressed: widget.onScrollPromptTap,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: buttonColor,
+              foregroundColor: Colors.white,
+              elevation: 6,
+              shadowColor: Colors.black.withValues(alpha: 0.28),
+              padding: EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
+                vertical: verticalPadding,
               ),
-              child: Text(
-                widget.scrollPromptLabel,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.1,
-                  fontSize: isWide ? 18 : 16,
-                  height: 1.05,
-                ),
+              shape: const StadiumBorder(),
+            ),
+            icon: const Icon(Icons.south_rounded),
+            label: Text(
+              widget.scrollPromptLabel,
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.8,
               ),
             ),
           ),
