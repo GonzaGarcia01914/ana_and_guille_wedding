@@ -191,17 +191,19 @@ class WeddingInvitationApp extends StatelessWidget {
 class WeddingInvitationPage extends StatefulWidget {
   const WeddingInvitationPage({super.key});
 
-  static const WeddingDetails details = WeddingDetails(
+  static final WeddingDetails details = WeddingDetails(
     coupleNames: 'Ana & Guilhem',
     videoUrl: 'assets/media/hero.mp4',
     audioUrl: 'assets/audio/Philippe_Katerine_-_Louxor_j_adore_recortada.mp3',
     mapUrl: 'https://maps.app.goo.gl/HyyjJ1SwnHrW1MUf9',
     rsvpEmail: 'anakarinagarcia@gmail.com',
     rsvpPhoneNumber: '595986206905',
+    eventStart: DateTime(2026, 9, 19, 12),
+    eventEnd: DateTime(2026, 9, 19, 23),
     localized: {
       InvitationLocale.es: LocaleStrings(
         heroTagline: '',
-        scrollPromptLabel: 'Pulsa aqu\u00ed',
+        scrollPromptLabel: 'PUSH\nHERE',
         celebrationDate:
             'Te esperamos el s\u00e1bado 19 de septiembre de 2026, a las 12:00 hs.',
         countdownTitle: 'Cuenta regresiva',
@@ -233,7 +235,7 @@ class WeddingInvitationPage extends StatefulWidget {
         whatsappButtonLabel: 'WhatsApp',
         emailSubject: 'Confirmaci\u00f3n de asistencia',
         whatsappMessage:
-            'Hola Guille, quiero confirmar mi asistencia a la boda de Ana y Guilhem.',
+            'Siiiii!!! Quiero confirmar mi presencia a su ceremonia del 19/09/26.',
         dressCodeLabel: 'Dress code',
         dressCode: 'Elegante relajado. Tonos neutros, tierra y naturales.',
         footerMessage:
@@ -243,7 +245,7 @@ class WeddingInvitationPage extends StatefulWidget {
       ),
       InvitationLocale.fr: LocaleStrings(
         heroTagline: '',
-        scrollPromptLabel: 'Appuie ici',
+        scrollPromptLabel: 'PUSH\nHERE',
         celebrationDate:
             "Nous t'attendons le samedi 19 septembre 2026 \u00e0 12h00 \u00e0 Monoblet.",
         countdownTitle: 'Compte \u00e0 rebours',
@@ -255,18 +257,18 @@ class WeddingInvitationPage extends StatefulWidget {
         minutesLabel: 'Minutes',
         secondsLabel: 'Secondes',
         storyLines: [
-          "Apr\u00e8s dix ans ensemble et tant d'aventures,",
+          "Apr\u00e8s 10 ans d'aventures ensemble,",
           'nous avons d\u00e9cid\u00e9 de vivre la plus Sp\u00e9ciale de Toutes.',
         ],
         storyInvite:
-            "Cette fois, nous voulons que tu en fasses partie et que tu nous accompagnes !",
+            "Cette fois, nous voulons que tu en fasses partie et que tu nous accompagnes!",
         locationTitle: 'Localisation',
         venueName: 'Le Chat',
         locationSummary: 'Monoblet, France',
         fullAddress: 'Le Chat, Monoblet, France',
         locationButtonLabel: 'Voir sur Google Maps',
         calendarButtonLabel: 'Ajouter au calendrier',
-        calendarTitle: 'Mariage',
+        calendarTitle: 'C\u00e9r\u00e9monie Ana & Guilhem',
         calendarDescription:
             "Nous c\u00e9l\u00e9brons notre mariage \u00e0 Le Chat, Monoblet. Nous t'attendons pour trinquer ensemble !",
         rsvpTitle: 'Confirmer ta pr\u00e9sence',
@@ -275,12 +277,12 @@ class WeddingInvitationPage extends StatefulWidget {
         whatsappButtonLabel: 'WhatsApp',
         emailSubject: 'Confirmation de pr\u00e9sence',
         whatsappMessage:
-            "Bonjour Guille ! Je souhaite confirmer ma pr\u00e9sence au mariage d'Ana et Guilhem.",
+            "Ouiiiii!!! Je souhaite confirmer ma pr\u00e9sence \u00e0 votre c\u00e9r\u00e9monie\ndu 19/09/26.",
         dressCodeLabel: 'Tenue',
         dressCode:
             '\u00c9l\u00e9gant d\u00e9contract\u00e9. Tons neutres, terre et naturels.',
         footerMessage:
-            'Merci de faire partie de ce moment si sp\u00e9cial pour nous !',
+            'Merci de faire partie de ce moment si sp\u00e9cial pour nous!',
         linkErrorMessage:
             "Nous n'avons pas pu ouvrir le lien. Tu peux le copier depuis l'invitation.",
       ),
@@ -293,7 +295,7 @@ class WeddingInvitationPage extends StatefulWidget {
 
 class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
   final ScrollController _scrollController = ScrollController();
-  final DateTime _targetDate = DateTime(2026, 9, 19, 12);
+  final DateTime _targetDate = WeddingInvitationPage.details.eventStart;
   late final ValueNotifier<Duration> _countdownNotifier =
       ValueNotifier<Duration>(_timeRemaining());
   InvitationLocale _locale = InvitationLocale.es;
@@ -405,16 +407,37 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
     }
   }
 
-  String _buildCalendarUrl(WeddingDetails details, LocaleStrings strings) {
-    const start = '20261120T200000Z';
-    const end = '20261121T020000Z';
-    final title = Uri.encodeComponent(
-      '${details.coupleNames} · ${strings.calendarTitle}',
+  String _formatCalendarDate(DateTime date) {
+    final normalized = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      date.hour,
+      date.minute,
+      date.second,
     );
+    final year = normalized.year.toString().padLeft(4, '0');
+    final month = normalized.month.toString().padLeft(2, '0');
+    final day = normalized.day.toString().padLeft(2, '0');
+    final hour = normalized.hour.toString().padLeft(2, '0');
+    final minute = normalized.minute.toString().padLeft(2, '0');
+    final second = normalized.second.toString().padLeft(2, '0');
+    return '$year$month${day}T$hour$minute$second';
+  }
+
+  String _buildCalendarUrl(WeddingDetails details, LocaleStrings strings) {
+    final start = _formatCalendarDate(details.eventStart);
+    final end = _formatCalendarDate(details.eventEnd);
+    final titleBase = strings.calendarTitle;
+    final titleText = titleBase.contains(details.coupleNames)
+        ? titleBase
+        : '${details.coupleNames} \u00b7 $titleBase';
+    final title = Uri.encodeComponent(titleText);
     final location = Uri.encodeComponent(strings.fullAddress);
     final description = Uri.encodeComponent(strings.calendarDescription);
 
-    return 'https://www.google.com/calendar/render?action=TEMPLATE&text=$title&dates=$start/$end&location=$location&details=$description';
+    const calendarTimeZone = 'Europe/Paris';
+    return 'https://www.google.com/calendar/render?action=TEMPLATE&text=$title&dates=$start/$end&location=$location&details=$description&ctz=$calendarTimeZone';
   }
 
   @override
@@ -736,8 +759,6 @@ class _HeroOverlayState extends State<_HeroOverlay>
   @override
   Widget build(BuildContext context) {
     final bool isWide = MediaQuery.of(context).size.width >= 720;
-    final double horizontalPadding = isWide ? 26 : 22;
-    final double verticalPadding = isWide ? 14 : 12;
     const Color buttonColor = Color(0xFFD64545);
 
     return Column(
@@ -751,25 +772,28 @@ class _HeroOverlayState extends State<_HeroOverlay>
               child: child,
             );
           },
-          child: ElevatedButton.icon(
-            onPressed: widget.onScrollPromptTap,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: buttonColor,
-              foregroundColor: Colors.white,
-              elevation: 6,
-              shadowColor: Colors.black.withValues(alpha: 0.28),
-              padding: EdgeInsets.symmetric(
-                horizontal: horizontalPadding,
-                vertical: verticalPadding,
+          child: SizedBox(
+            width: isWide ? 116 : 102,
+            height: isWide ? 116 : 102,
+            child: ElevatedButton(
+              onPressed: widget.onScrollPromptTap,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: buttonColor,
+                foregroundColor: Colors.white,
+                elevation: 6,
+                shadowColor: Colors.black.withValues(alpha: 0.28),
+                shape: const CircleBorder(),
+                padding: EdgeInsets.zero,
               ),
-              shape: const StadiumBorder(),
-            ),
-            icon: const Icon(Icons.south_rounded),
-            label: Text(
-              widget.scrollPromptLabel,
-              style: const TextStyle(
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.8,
+              child: Text(
+                widget.scrollPromptLabel,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.1,
+                  fontSize: isWide ? 18 : 16,
+                  height: 1.05,
+                ),
               ),
             ),
           ),
@@ -1547,6 +1571,8 @@ class WeddingDetails {
     required this.mapUrl,
     required this.rsvpEmail,
     required this.rsvpPhoneNumber,
+    required this.eventStart,
+    required this.eventEnd,
     required this.localized,
   });
 
@@ -1557,6 +1583,8 @@ class WeddingDetails {
   final String mapUrl;
   final String rsvpEmail;
   final String rsvpPhoneNumber;
+  final DateTime eventStart;
+  final DateTime eventEnd;
   final Map<InvitationLocale, LocaleStrings> localized;
 
   LocaleStrings stringsFor(InvitationLocale locale) =>
