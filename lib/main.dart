@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
 
@@ -239,7 +239,7 @@ class WeddingInvitationPage extends StatefulWidget {
         dressCodeLabel: 'Dress code',
         dressCode: 'Elegante relajado. Tonos neutros, tierra y naturales.',
         footerMessage:
-            'Gracias por ser parte de este Momento tan especial para nosotros!',
+            'Gracias por ser parte de este MOMENTO TAN ESPACIAL para nosotros!',
         linkErrorMessage:
             'No pudimos abrir el enlace. Pod\u00e9s copiarlo desde la invitaci\u00f3n.',
       ),
@@ -627,11 +627,12 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                               child: Container(
                                                 padding:
                                                     const EdgeInsets.symmetric(
-                                                  horizontal: 18,
-                                                  vertical: 10,
-                                                ),
+                                                      horizontal: 18,
+                                                      vertical: 10,
+                                                    ),
                                                 decoration: BoxDecoration(
-                                                  color: theme.colorScheme
+                                                  color: theme
+                                                      .colorScheme
                                                       .primary
                                                       .withValues(alpha: 0.22),
                                                   borderRadius:
@@ -643,10 +644,10 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                                       .textTheme
                                                       .headlineMedium
                                                       ?.copyWith(
-                                                    color: theme
-                                                        .colorScheme
-                                                        .onPrimary,
-                                                  ),
+                                                        color: theme
+                                                            .colorScheme
+                                                            .onPrimary,
+                                                      ),
                                                 ),
                                               ),
                                             ),
@@ -1095,7 +1096,7 @@ class _IntroBloomOverlayState extends State<_IntroBloomOverlay>
                         child: Text(
                           _hasTapped
                               ? 'Preparando la magia...'
-                              : 'Toca para abrir',
+                              : 'Push Here to Open',
                           key: ValueKey(_hasTapped),
                           style: const TextStyle(
                             fontWeight: FontWeight.w700,
