@@ -239,7 +239,7 @@ class WeddingInvitationPage extends StatefulWidget {
         dressCodeLabel: 'Dress code',
         dressCode: 'Elegante relajado. Tonos neutros, tierra y naturales.',
         footerMessage:
-            'GRACIAS POR SER PARTE DE ESTE MOMENTO TAN ESPACIAL PARA NOSOTROS!',
+            'GRACIAS POR SER PARTE DE ESTE MOMENTO TAN ESPECIAL PARA NOSOTROS!',
         linkErrorMessage:
             'No pudimos abrir el enlace. Pod\u00e9s copiarlo desde la invitaci\u00f3n.',
       ),
