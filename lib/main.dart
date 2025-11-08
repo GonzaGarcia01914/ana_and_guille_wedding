@@ -237,7 +237,7 @@ class WeddingInvitationPage extends StatefulWidget {
         whatsappMessage:
             'Siiiii!!! Quiero confirmar mi presencia a su ceremonia del 19/09/26.',
         dressCodeLabel: 'Dress code',
-        dressCode: 'Elegante relajado. Tonos neutros, tierra y naturales.',
+        dressCode: 'Elegante relajado',
         footerMessage:
             'GRACIAS POR SER PARTE DE ESTE MOMENTO TAN ESPECIAL PARA NOSOTROS!',
         linkErrorMessage:
@@ -279,8 +279,7 @@ class WeddingInvitationPage extends StatefulWidget {
         whatsappMessage:
             "Ouiiiii!!! Je souhaite confirmer ma pr\u00e9sence \u00e0 votre c\u00e9r\u00e9monie\ndu 19/09/26.",
         dressCodeLabel: 'Tenue',
-        dressCode:
-            '\u00c9l\u00e9gant d\u00e9contract\u00e9. Tons neutres, terre et naturels.',
+        dressCode: '\u00c9l\u00e9gant d\u00e9contract\u00e9.',
         footerMessage:
             'Merci de faire partie de ce moment si sp\u00e9cial pour nous!',
         linkErrorMessage:
