@@ -557,6 +557,17 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                                 details.mapUrl,
                                                 strings.linkErrorMessage,
                                               ),
+                                              style: ElevatedButton.styleFrom(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 18,
+                                                  vertical: 10,
+                                                ),
+                                                minimumSize:
+                                                    const Size(0, 38),
+                                                textStyle: theme
+                                                    .textTheme.labelLarge,
+                                              ),
                                               icon: const Icon(
                                                 Icons.map_outlined,
                                               ),
@@ -602,6 +613,15 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                               ),
                                               style: ElevatedButton.styleFrom(
                                                 elevation: 0,
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 18,
+                                                  vertical: 10,
+                                                ),
+                                                minimumSize:
+                                                    const Size(0, 38),
+                                                textStyle: theme
+                                                    .textTheme.labelLarge,
                                               ),
                                               icon: const Icon(
                                                 Icons.chat_bubble_outline,
@@ -1153,26 +1173,23 @@ class _CountdownSection extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 30),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primary.withValues(alpha: 0.22),
-                borderRadius: BorderRadius.circular(22),
-              ),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  strings.countdownTitle,
-                  softWrap: false,
-                  maxLines: 1,
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    color: theme.colorScheme.onPrimary,
-                  ),
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withValues(alpha: 0.22),
+              borderRadius: BorderRadius.circular(22),
+            ),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                strings.countdownTitle,
+                softWrap: false,
+                maxLines: 1,
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  color: theme.colorScheme.onPrimary,
                 ),
               ),
             ),
@@ -1180,7 +1197,7 @@ class _CountdownSection extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             strings.countdownSubtitle,
-            textAlign: TextAlign.start,
+            textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(color: bodyColor),
           ),
           const SizedBox(height: 24),
