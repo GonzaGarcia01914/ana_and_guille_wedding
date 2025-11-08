@@ -528,7 +528,6 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                   SectionCard(
                                     title: strings.locationTitle,
                                     icon: Icons.place_outlined,
-                                    centerHeader: true,
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -587,7 +586,6 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                   SectionCard(
                                     title: strings.rsvpTitle,
                                     icon: Icons.mark_email_read_outlined,
-                                    centerHeader: true,
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -615,61 +613,41 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                           ],
                                         ),
                                         const SizedBox(height: 24),
-                                        Center(
-                                          child: FittedBox(
-                                            fit: BoxFit.scaleDown,
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                Icon(
-                                                  Icons.style_outlined,
-                                                  color:
-                                                      theme.colorScheme.primary,
-                                                ),
-                                                const SizedBox(width: 12),
-                                                ConstrainedBox(
-                                                  constraints:
-                                                      const BoxConstraints(
-                                                    maxWidth: 420,
-                                                  ),
-                                                  child: Container(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                      horizontal: 18,
-                                                      vertical: 10,
-                                                    ),
-                                                    decoration: BoxDecoration(
-                                                      color: theme
-                                                          .colorScheme
-                                                          .primary
-                                                          .withValues(
-                                                            alpha: 0.22,
-                                                          ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                        22,
-                                                      ),
-                                                    ),
-                                                    child: Text(
-                                                      strings.dressCodeLabel,
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: theme
-                                                          .textTheme
-                                                          .headlineMedium
-                                                          ?.copyWith(
-                                                            color: theme
-                                                                .colorScheme
-                                                                .onPrimary,
-                                                          ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.style_outlined,
+                                              color: theme.colorScheme.primary,
                                             ),
-                                          ),
+                                            const SizedBox(width: 12),
+                                            Expanded(
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 18,
+                                                  vertical: 10,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: theme
+                                                      .colorScheme.primary
+                                                      .withValues(alpha: 0.22),
+                                                  borderRadius:
+                                                      BorderRadius.circular(22),
+                                                ),
+                                                child: Text(
+                                                  strings.dressCodeLabel,
+                                                  style: theme
+                                                      .textTheme.headlineMedium
+                                                      ?.copyWith(
+                                                    color: theme
+                                                        .colorScheme.onPrimary,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                         const SizedBox(height: 12),
                                         Text(
@@ -1175,21 +1153,26 @@ class _CountdownSection extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 30),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withValues(alpha: 0.22),
-              borderRadius: BorderRadius.circular(22),
-            ),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                strings.countdownTitle,
-                softWrap: false,
-                maxLines: 1,
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  color: theme.colorScheme.onPrimary,
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary.withValues(alpha: 0.22),
+                borderRadius: BorderRadius.circular(22),
+              ),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  strings.countdownTitle,
+                  softWrap: false,
+                  maxLines: 1,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    color: theme.colorScheme.onPrimary,
+                  ),
                 ),
               ),
             ),
@@ -1197,7 +1180,7 @@ class _CountdownSection extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             strings.countdownSubtitle,
-            textAlign: TextAlign.center,
+            textAlign: TextAlign.start,
             style: theme.textTheme.bodyMedium?.copyWith(color: bodyColor),
           ),
           const SizedBox(height: 24),
@@ -1400,70 +1383,47 @@ class SectionCard extends StatelessWidget {
     required this.title,
     required this.icon,
     required this.child,
-    this.centerHeader = false,
   });
 
   final String title;
   final IconData icon;
   final Widget child;
-  final bool centerHeader;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final Widget chip = Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 18,
-        vertical: 10,
-      ),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primary.withValues(alpha: 0.22),
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Text(
-        title,
-        style: theme.textTheme.headlineMedium?.copyWith(
-          color: theme.colorScheme.onPrimary,
-        ),
-        textAlign: centerHeader ? TextAlign.center : TextAlign.start,
-        softWrap: true,
-      ),
-    );
-
-    final Widget header = centerHeader
-        ? Center(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(icon, color: theme.colorScheme.primary),
-                  const SizedBox(width: 12),
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 420),
-                    child: chip,
-                  ),
-                ],
-              ),
-            ),
-          )
-        : Row(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(icon, color: theme.colorScheme.primary),
-              const SizedBox(width: 12),
-              Expanded(child: chip),
-            ],
-          );
-
     return _MinimalCard(
       padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 26),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          header,
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(icon, color: theme.colorScheme.primary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.22),
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: Text(
+                    title,
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      color: theme.colorScheme.onPrimary,
+                    ),
+                    softWrap: true,
+                  ),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 18),
           child,
         ],
