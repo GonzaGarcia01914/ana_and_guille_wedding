@@ -204,8 +204,7 @@ class WeddingInvitationPage extends StatefulWidget {
       InvitationLocale.es: LocaleStrings(
         heroTagline: '',
         scrollPromptLabel: 'Push Here',
-        celebrationDate:
-            'Te esperamos el s\u00e1bado 19 de septiembre de 2026, a las 12:00 hs.',
+        celebrationDate: 'Te esperamos el s\u00e1bado 19 de septiembre de 2026',
         countdownTitle: 'Cuenta regresiva',
         countdownSubtitle: 'Hasta el 19 de septiembre de 2026',
         countdownLeadLabel: 'Faltan',
@@ -246,8 +245,7 @@ class WeddingInvitationPage extends StatefulWidget {
       InvitationLocale.fr: LocaleStrings(
         heroTagline: '',
         scrollPromptLabel: 'Push Here',
-        celebrationDate:
-            "Nous t'attendons le samedi 19 septembre 2026 \u00e0 12h00 \u00e0 Monoblet.",
+        celebrationDate: "Nous t'attendons le samedi 19 septembre 2026",
         countdownTitle: 'Compte \u00e0 rebours',
         countdownSubtitle: "Jusqu'au 19 septembre 2026",
         countdownLeadLabel: 'Plus que',
@@ -560,13 +558,12 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                               style: ElevatedButton.styleFrom(
                                                 padding:
                                                     const EdgeInsets.symmetric(
-                                                  horizontal: 18,
-                                                  vertical: 10,
-                                                ),
-                                                minimumSize:
-                                                    const Size(0, 38),
-                                                textStyle: theme
-                                                    .textTheme.labelLarge,
+                                                      horizontal: 18,
+                                                      vertical: 10,
+                                                    ),
+                                                minimumSize: const Size(0, 38),
+                                                textStyle:
+                                                    theme.textTheme.labelLarge,
                                               ),
                                               icon: const Icon(
                                                 Icons.map_outlined,
@@ -615,13 +612,12 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                                 elevation: 0,
                                                 padding:
                                                     const EdgeInsets.symmetric(
-                                                  horizontal: 18,
-                                                  vertical: 10,
-                                                ),
-                                                minimumSize:
-                                                    const Size(0, 38),
-                                                textStyle: theme
-                                                    .textTheme.labelLarge,
+                                                      horizontal: 18,
+                                                      vertical: 10,
+                                                    ),
+                                                minimumSize: const Size(0, 38),
+                                                textStyle:
+                                                    theme.textTheme.labelLarge,
                                               ),
                                               icon: const Icon(
                                                 Icons.chat_bubble_outline,
@@ -646,12 +642,13 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                               child: Container(
                                                 padding:
                                                     const EdgeInsets.symmetric(
-                                                  horizontal: 18,
-                                                  vertical: 10,
-                                                ),
+                                                      horizontal: 18,
+                                                      vertical: 10,
+                                                    ),
                                                 decoration: BoxDecoration(
                                                   color: theme
-                                                      .colorScheme.primary
+                                                      .colorScheme
+                                                      .primary
                                                       .withValues(alpha: 0.22),
                                                   borderRadius:
                                                       BorderRadius.circular(22),
@@ -659,11 +656,13 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                                 child: Text(
                                                   strings.dressCodeLabel,
                                                   style: theme
-                                                      .textTheme.headlineMedium
+                                                      .textTheme
+                                                      .headlineMedium
                                                       ?.copyWith(
-                                                    color: theme
-                                                        .colorScheme.onPrimary,
-                                                  ),
+                                                        color: theme
+                                                            .colorScheme
+                                                            .onPrimary,
+                                                      ),
                                                 ),
                                               ),
                                             ),
@@ -1176,8 +1175,7 @@ class _CountdownSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
             decoration: BoxDecoration(
               color: theme.colorScheme.primary.withValues(alpha: 0.22),
               borderRadius: BorderRadius.circular(22),
