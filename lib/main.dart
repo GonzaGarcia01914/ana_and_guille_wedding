@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
 
@@ -195,7 +195,9 @@ class WeddingInvitationPage extends StatefulWidget {
     coupleNames: 'Ana & Guilhem',
     videoUrl: 'assets/media/hero.mp4',
     audioUrl: 'assets/audio/Philippe_Katerine_-_Louxor_j_adore_recortada.mp3',
-    mapUrl: 'https://maps.app.goo.gl/HyyjJ1SwnHrW1MUf9',
+    mapUrl: 'https://maps.app.goo.gl/MzDqAMXRB4Lyx2129',
+    driveUrl:
+        'https://drive.google.com/drive/folders/1cLO1Aa3kRO1VSKuVLU2NwRg6Cc09UPkX?usp=drive_link',
     rsvpEmail: 'anakarinagarcia@gmail.com',
     rsvpPhoneNumber: '595986206905',
     eventStart: DateTime(2026, 9, 19, 12),
@@ -219,6 +221,18 @@ class WeddingInvitationPage extends StatefulWidget {
         ],
         storyInvite:
             '\u00a1Esta vez queremos que seas parte y nos acompa\u00f1es!',
+        programTitle: 'Programa',
+        programItems: [
+          ProgramItem(time: '14:00 hs.', label: 'Llegada de invitados.'),
+          ProgramItem(time: '14:30 hs.', label: 'Inicio Ceremonia.'),
+          ProgramItem(time: '16:00 hs.', label: 'Ap\u00e9ro.'),
+          ProgramItem(time: '18:30 hs.', label: 'Cena.'),
+          ProgramItem(time: '20:30 hs.', label: 'Postre y Brindis'),
+          ProgramItem(time: '21:00 hs.', label: 'Baile.'),
+        ],
+        mediaTitle: 'Fotos y videos',
+        mediaDescription: 'Comparte tus fotos y videos en nuestro Drive:',
+        mediaButtonLabel: 'Abrir Drive',
         locationTitle: 'Ubicaci\u00f3n',
         venueName: 'Le Chat',
         locationSummary: 'Monoblet, Francia',
@@ -260,6 +274,22 @@ class WeddingInvitationPage extends StatefulWidget {
         ],
         storyInvite:
             "Cette fois, nous voulons que tu en fasses partie et que tu nous accompagnes!",
+        programTitle: 'Programme',
+        programItems: [
+          ProgramItem(time: '14h00', label: 'Arriv\u00e9e des invit\u00e9s.'),
+          ProgramItem(
+            time: '14h30',
+            label: 'D\u00e9but de la c\u00e9r\u00e9monie.',
+          ),
+          ProgramItem(time: '16h00', label: 'Ap\u00e9ro.'),
+          ProgramItem(time: '18h30', label: 'D\u00eener.'),
+          ProgramItem(time: '20h30', label: 'Dessert et toast.'),
+          ProgramItem(time: '21h00', label: 'Danse.'),
+        ],
+        mediaTitle: 'Photos et vid\u00e9os',
+        mediaDescription:
+            'Partage tes photos et vid\u00e9os dans notre Drive :',
+        mediaButtonLabel: 'Ouvrir le Drive',
         locationTitle: 'Localisation',
         venueName: 'Le Chat',
         locationSummary: 'Monoblet, France',
@@ -523,6 +553,8 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                     strings: strings,
                                   ),
                                   const SizedBox(height: 28),
+                                  _ProgramSection(strings: strings),
+                                  const SizedBox(height: 28),
                                   SectionCard(
                                     title: strings.locationTitle,
                                     icon: Icons.place_outlined,
@@ -672,6 +704,42 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                         Text(
                                           strings.dressCode,
                                           style: theme.textTheme.bodyMedium,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 28),
+                                  SectionCard(
+                                    title: strings.mediaTitle,
+                                    icon: Icons.photo_library_outlined,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          strings.mediaDescription,
+                                          style: theme.textTheme.bodyMedium,
+                                        ),
+                                        const SizedBox(height: 18),
+                                        ElevatedButton.icon(
+                                          onPressed: () => _openLink(
+                                            context,
+                                            details.driveUrl,
+                                            strings.linkErrorMessage,
+                                          ),
+                                          style: ElevatedButton.styleFrom(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 18,
+                                              vertical: 10,
+                                            ),
+                                            minimumSize: const Size(0, 38),
+                                            textStyle:
+                                                theme.textTheme.labelLarge,
+                                          ),
+                                          icon: const Icon(
+                                            Icons.cloud_upload_outlined,
+                                          ),
+                                          label: Text(strings.mediaButtonLabel),
                                         ),
                                       ],
                                     ),
@@ -1392,6 +1460,69 @@ class _WelcomeSection extends StatelessWidget {
   }
 }
 
+class _ProgramSection extends StatelessWidget {
+  const _ProgramSection({required this.strings});
+
+  final LocaleStrings strings;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return SectionCard(
+      title: strings.programTitle,
+      icon: Icons.schedule_outlined,
+      child: Column(
+        children: [
+          for (int i = 0; i < strings.programItems.length; i++) ...[
+            _ProgramItemRow(item: strings.programItems[i]),
+            if (i != strings.programItems.length - 1)
+              Divider(
+                height: 22,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.12),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _ProgramItemRow extends StatelessWidget {
+  const _ProgramItemRow({required this.item});
+
+  final ProgramItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 82,
+          child: Text(
+            item.time,
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: theme.colorScheme.tertiary,
+            ),
+          ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Text(
+            item.label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class SectionCard extends StatelessWidget {
   const SectionCard({
     super.key,
@@ -1585,6 +1716,7 @@ class WeddingDetails {
     required this.audioUrl,
     this.audioStartPosition = 0,
     required this.mapUrl,
+    required this.driveUrl,
     required this.rsvpEmail,
     required this.rsvpPhoneNumber,
     required this.eventStart,
@@ -1597,6 +1729,7 @@ class WeddingDetails {
   final String audioUrl;
   final double audioStartPosition;
   final String mapUrl;
+  final String driveUrl;
   final String rsvpEmail;
   final String rsvpPhoneNumber;
   final DateTime eventStart;
@@ -1622,6 +1755,11 @@ class LocaleStrings {
     required this.secondsLabel,
     required this.storyLines,
     required this.storyInvite,
+    required this.programTitle,
+    required this.programItems,
+    required this.mediaTitle,
+    required this.mediaDescription,
+    required this.mediaButtonLabel,
     required this.locationTitle,
     required this.venueName,
     required this.locationSummary,
@@ -1655,6 +1793,11 @@ class LocaleStrings {
   final String secondsLabel;
   final List<String> storyLines;
   final String storyInvite;
+  final String programTitle;
+  final List<ProgramItem> programItems;
+  final String mediaTitle;
+  final String mediaDescription;
+  final String mediaButtonLabel;
   final String locationTitle;
   final String venueName;
   final String locationSummary;
@@ -1673,6 +1816,13 @@ class LocaleStrings {
   final String dressCode;
   final String footerMessage;
   final String linkErrorMessage;
+}
+
+class ProgramItem {
+  const ProgramItem({required this.time, required this.label});
+
+  final String time;
+  final String label;
 }
 
 enum InvitationLocale { es, fr }
