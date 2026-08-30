@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
 
@@ -234,14 +234,14 @@ class WeddingInvitationPage extends StatefulWidget {
         mediaDescription: 'Comparte tus fotos y videos en nuestro Drive:',
         mediaButtonLabel: 'Abrir Drive',
         locationTitle: 'Ubicaci\u00f3n',
-        venueName: 'Le Chat',
+        venueName: "Le Moulin de l'Ayrolle",
         locationSummary: 'Monoblet, Francia',
-        fullAddress: 'Le Chat, Monoblet, Francia',
+        fullAddress: "Le Moulin de l'Ayrolle, Monoblet, Francia",
         locationButtonLabel: 'Ver en Google Maps',
         calendarButtonLabel: 'Agregar al calendario',
         calendarTitle: 'Boda',
         calendarDescription:
-            'Celebramos nuestra boda en Le Chat, Monoblet. \u00a1Te esperamos para brindar juntos!',
+            "Celebramos nuestra boda en Le Le Moulin de l'Ayrolle, Monoblet. \u00a1Te esperamos para brindar juntos!",
         rsvpTitle: 'Confirmar Asistencia',
         rsvpDateLimit: '',
         emailButtonLabel: 'Enviar correo',
@@ -291,14 +291,14 @@ class WeddingInvitationPage extends StatefulWidget {
             'Partage tes photos et vid\u00e9os dans notre Drive :',
         mediaButtonLabel: 'Ouvrir le Drive',
         locationTitle: 'Localisation',
-        venueName: 'Le Chat',
+        venueName: "Le Moulin de l'Ayrolle",
         locationSummary: 'Monoblet, France',
-        fullAddress: 'Le Chat, Monoblet, France',
+        fullAddress: "Le Moulin de l'Ayrolle, Monoblet, France",
         locationButtonLabel: 'Voir sur Google Maps',
         calendarButtonLabel: 'Ajouter au calendrier',
         calendarTitle: 'C\u00e9r\u00e9monie Ana & Guilhem',
         calendarDescription:
-            "Nous c\u00e9l\u00e9brons notre mariage \u00e0 Le Chat, Monoblet. Nous t'attendons pour trinquer ensemble !",
+            "Nous c\u00e9l\u00e9brons notre mariage \u00e0 Le Moulin de l'Ayrolle, Monoblet. Nous t'attendons pour trinquer ensemble !",
         rsvpTitle: 'Confirmer ta pr\u00e9sence',
         rsvpDateLimit: '',
         emailButtonLabel: 'Envoyer un e-mail',
